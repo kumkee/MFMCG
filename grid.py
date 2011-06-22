@@ -4,6 +4,9 @@ def whoami():
 def whosdaddy():
     return inspect.stack()[2][3]
 
+def myabs(x):
+   return x if(x>=0) else -x
+
 class raw:
    def __init__(self,width,length):
       self._w = int(width if width>0 else -width)
@@ -39,7 +42,12 @@ class honeycomb(raw):
       tq = self.inrange(q)
       if(tp==tq and tp):
 	if(tp==2):
-	   return 1
+	   if(p[0]==q[0]):
+		return 1 if(myabs(p[1]-q[1])==1) else 0
+	   elif(p[1]==q[1]):
+		return 1 if( (p[0]-q[0]==1 and (p[0]+p[1])%2==1) or (q[0]-p[0]==1 and (q[0]+q[1])%2==1) ) else 0
+	   else:
+		return 0
 	elif(tp==1):
 	   return self.line(self.pointindex(p),self.pointindex(q))
       else:
