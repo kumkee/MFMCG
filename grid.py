@@ -1,3 +1,9 @@
+import inspect
+def whoami():
+    return inspect.stack()[1][3]
+def whosdaddy():
+    return inspect.stack()[2][3]
+
 class raw:
    def __init__(self,width,length):
       self._w = int(width if width>0 else -width)
@@ -13,17 +19,7 @@ class raw:
 	return 2 if (len(p)==2 and 0<=p[0] and p[0]<self._w and 0<=p[1] and p[1]<self._l) else 0
       else:
 	return 1 if ((type(p) is int or type(p) is float) and 0<=p and p<self._n) else 0
-   '''def pointtest(self,p):
-      if(type(p) is list):
-	if(len(p)==2):
-	   return 2
-	else:
-	   return 0
-      elif(type(p) is int or type(p) is float):
-	return 1
-      else:
-	return 0'''
-   def position(self,p):
+   def pointindex(self,p):
       tp = self.inrange(p)
       if(tp==2):
 	return int(p[0])*self._l + int(p[1])
@@ -31,27 +27,24 @@ class raw:
 	myp = int(p)
 	return [ myp/self._l, myp%self._l ]
       else:
-	print "ERROR: Coordinates out of range -- CLASS:", self.__class__
+	print "ERROR: Index(ices) out of range -- FUNCTON: %s.%s" % (self.__class__, whoami())
 	quit(2)
-   '''def position(self,r,c):
-      if(self.inrange([r,c])):
-	myr = int(r)
-	myc = int(c)
-	return myr*self._l + myc
-      else:
-	print "ERROR: Coordinates out of range -- CLASS:", self.__class__
-	quit(2)
-   def coor(self,p):
-      if(self.inrange(p)):
-	myp = int(p)
-	return [ myp/self._l, myp%self._l ]
-      else:
-	print "ERROR: Position out of range -- CLASS:", self.__class__
-	quit(2)'''
 
 sqrt3 = 1.732050807568877293527
 
 class honeycomb(raw):
+   def line(self,p,q):
+      erstr='print "ERROR: Points out of range -- FUNCTON: %s.%s" % (self.__class__, whoami())'
+      tp = self.inrange(p)
+      tq = self.inrange(q)
+      if(tp==tq and tp):
+	if(tp==2):
+	   return 1
+	elif(tp==1):
+	   return self.line(self.pointindex(p),self.pointindex(q))
+      else:
+	print "ERROR: Points out of range -- FUNCTON: %s.%s" % (self.__class__, whoami())
+	quit(2)
    def test(self):
       print "honeycomb Test.", self._l
 
