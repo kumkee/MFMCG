@@ -5,16 +5,19 @@ import platform
 print platform.python_version()
 a = grid.honeycomb(4,5)
 print a.size(1)
-print a.pointindex([3,4])
-print a.pointindex(a.size()-1)
+print a.pntind([3,4])
+print a.pntind(a.size()-1)
 print a.__class__
 b = grid.square(3.5)
 print b.size(1)
 a.test()
-print a.line([1,1],[3,4])
-print a.line([0,0],[1,0])
-print a.line([0,1],[1,0])
-print a.line([0,1],[1,1])
-print a.line([1,1],[2,1])
-print a.line([1,2],[2,2])
-#print b.pointindex([3,3])
+p = [ [x,y] for x in range(a.size()) for y in range(a.size()) if(a.line(x,y) and x<=y) ]
+print p
+print "-----------"
+p = [ [a.pntind(x),a.pntind(y)] for x in range(a.size()) for y in range(a.size()) if(a.line(x,y) and x<=y) ]
+print p
+print "-----------"
+q = [ a.pntind(x) for x in range(a.size()) ]
+z = [ [a.pntind(x),a.coord(x)] for x in range(a.size()) ]
+print z
+print b.pntind([3,3])

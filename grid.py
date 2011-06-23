@@ -21,8 +21,8 @@ class raw:
       if(type(p) is list):
 	return 2 if (len(p)==2 and 0<=p[0] and p[0]<self._w and 0<=p[1] and p[1]<self._l) else 0
       else:
-	return 1 if ((type(p) is int or type(p) is float) and 0<=p and p<self._n) else 0
-   def pointindex(self,p):
+	return 1 if ( isinstance(p, (int,float)) and 0<=p and p<self._n) else 0
+   def pntind(self,p):
       tp = self.inrange(p)
       if(tp==2):
 	return int(p[0])*self._l + int(p[1])
@@ -33,11 +33,23 @@ class raw:
 	print "ERROR: Index(ices) out of range -- FUNCTON: %s.%s" % (self.__class__, whoami())
 	quit(2)
 
-sqrt3 = 1.732050807568877293527
+hsqrt3 = 0.86602540378443859659
 
 class honeycomb(raw):
+   erstr="ERROR: Points out of range -- FUNCTON: %s.%s"
+   def __init__(self,width=1,length=1,ledge=1):
+      raw.__init__(self,width,length)
+      self._loe = ledge
+   def sublat(self,p):
+      tp = self.inrange(p)
+      if(tp==1):
+	return self.sublat(self.pntind(p))
+      elif(tp==2):
+	return sum(p)%2
+      else:
+	print erstr % (self.__class__, whoami())
+	quit(2)
    def line(self,p,q):
-      erstr='print "ERROR: Points out of range -- FUNCTON: %s.%s" % (self.__class__, whoami())'
       tp = self.inrange(p)
       tq = self.inrange(q)
       if(tp==tq and tp):
@@ -45,14 +57,30 @@ class honeycomb(raw):
 	   if(p[0]==q[0]):
 		return 1 if(myabs(p[1]-q[1])==1) else 0
 	   elif(p[1]==q[1]):
-		return 1 if( (p[0]-q[0]==1 and (p[0]+p[1])%2==1) or (q[0]-p[0]==1 and (q[0]+q[1])%2==1) ) else 0
+		return 1 if( (p[0]-q[0]==1 and self.sublat(p)==1) or (q[0]-p[0]==1 and self.sublat(q)==1) ) else 0
 	   else:
 		return 0
 	elif(tp==1):
-	   return self.line(self.pointindex(p),self.pointindex(q))
+	   return self.line(self.pntind(p),self.pntind(q))
       else:
-	print "ERROR: Points out of range -- FUNCTON: %s.%s" % (self.__class__, whoami())
-	quit(2)
+	print erstr % (self.__class__, whoami()); quit(2)
+   def coord(self,p):
+      tp = self.inrange(p)
+      if(tp==1):
+	return self.coord(self.pntind(p))
+      elif(tp==2):
+	s = self.sublat(p)
+	x = p[1] * hsqrt3
+	y = -p[0]/2.0 * 3.0
+	if(s==0):
+	   if(p[1]%2==1): y += 0.5
+	   else:	  y += -1.0
+	else:
+	   if(p[1]%2==1): y += -1.5
+	   else:	  y += 0.0
+	return [ x*self._loe, y*self._loe ]
+      else:
+	print erstr % (self.__class__, whoami()); quit(2)
    def test(self):
       print "honeycomb Test.", self._l
 
