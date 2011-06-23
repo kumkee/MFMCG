@@ -15,9 +15,16 @@ p = [ [x,y] for x in range(a.size()) for y in range(a.size()) if(a.line(x,y) and
 print p
 print "-----------"
 p = [ [a.pntind(x),a.pntind(y)] for x in range(a.size()) for y in range(a.size()) if(a.line(x,y) and x<=y) ]
-print p
+#print p
 print "-----------"
 q = [ a.pntind(x) for x in range(a.size()) ]
 z = [ [a.pntind(x),a.coord(x)] for x in range(a.size()) ]
 print z
-print b.pntind([3,3])
+print "-----------"
+print p
+print "-----------"
+#print b.pntind([3,3])
+ppset = [ [a.coord(pp[0]), a.coord(pp[1])] for pp in p ]
+print ppset
+import drawing
+drawing.jmultp(ppset)

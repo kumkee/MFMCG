@@ -71,13 +71,7 @@ class honeycomb(raw):
       elif(tp==2):
 	s = self.sublat(p)
 	x = p[1] * hsqrt3
-	y = -p[0]/2.0 * 3.0
-	if(s==0):
-	   if(p[1]%2==1): y += 0.5
-	   else:	  y += -1.0
-	else:
-	   if(p[1]%2==1): y += -1.5
-	   else:	  y += 0.0
+	y = -p[0]/2.0 * 3.0 + s*0.5
 	return [ x*self._loe, y*self._loe ]
       else:
 	print erstr % (self.__class__, whoami()); quit(2)
