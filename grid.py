@@ -42,7 +42,7 @@ hsqrt3 = 0.86602540378443859659
 
 class honeycomb(raw):
    erstr="ERROR: Points out of range -- FUNCTON: %s.%s called from %s"
-   def __init__(self,width=1,length=1,ledge=1):
+   def __init__(self,width=1,length=1,ledge=1.0):
       raw.__init__(self,width,length)
       self._loe = ledge
    def sublat(self,p):
@@ -97,8 +97,9 @@ class honeycomb(raw):
       else:
 	print erstr % (self.__class__, whoami(), whosdaddy()); quit(2)
    def _pnt(self,i,j,form='2d'):
-      if(form=='2d'): return [i,j]
-      else:	      return self([i,j])
+      if(form=='2d'):	return [i,j]
+      elif(form=='xy'): return self.coord([i,j])
+      else:		return self([i,j])
    def lslinks(self,form='2d',outype='array'):
       links = []
       for i in xrange(self._w):

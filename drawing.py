@@ -22,7 +22,7 @@ def jmultp(ppairs,sty='g-',output=None):
       savefig(output)
 
 def drawhoneycomb(honeycomb,sty='g-',output=None):
-   pp = honeycomb.lslinks()
+   pp = honeycomb.lslinks(form='xy')
    '''	array([ array([honeycomb.coord(x), honeycomb.coord(y)]) for x in xrange(honeycomb.size())  
 			for y in xrange(honeycomb.size()) if honeycomb.line(x,y) and x<=y ])
 		# this 2D iteration is very time-consuming '''

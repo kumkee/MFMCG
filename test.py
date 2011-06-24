@@ -27,6 +27,6 @@ print "-----------"
 ppset = [ [a.coord(pp[0]), a.coord(pp[1])] for pp in p ]
 import drawing
 drawing.jmultp(ppset,sty='g--')
-c = grid.honeycomb(50,121,ledge=0.9)
+c = grid.honeycomb(100,251,ledge=0.9)
 drawing.drawhoneycomb(c,sty='b-')
 drawing.savefig('test.eps')
