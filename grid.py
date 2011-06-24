@@ -1,4 +1,5 @@
 import inspect
+from numpy import *
 def whoami():
     return inspect.stack()[1][3]
 def whosdaddy():
@@ -18,17 +19,21 @@ class raw:
       else:
 	return [self._w, self._l]
    def inrange(self,p):
-      if(type(p) is list):
+      if(isinstance(p,(list,ndarray)) and isinstance(p[0],(int,float))):
 	return 2 if (len(p)==2 and 0<=p[0] and p[0]<self._w and 0<=p[1] and p[1]<self._l) else 0
+      elif(isinstance(p, (int,float))):
+	return 1 if ( 0<=p and p<self._n) else 0 
       else:
-	return 1 if ( isinstance(p, (int,float)) and 0<=p and p<self._n) else 0
+	return 0
    def pntind(self,p):
+      return self(p)
+   def __call__(self,p):
       tp = self.inrange(p)
       if(tp==2):
 	return int(p[0])*self._l + int(p[1])
       elif(tp==1):
 	myp = int(p)
-	return [ myp/self._l, myp%self._l ]
+	return array([ myp/self._l, myp%self._l ])
       else:
 	print "ERROR: Index(ices) out of range -- FUNCTON: %s.%s" % (self.__class__, whoami())
 	quit(2)
@@ -43,7 +48,7 @@ class honeycomb(raw):
    def sublat(self,p):
       tp = self.inrange(p)
       if(tp==1):
-	return self.sublat(self.pntind(p))
+	return self.sublat(self(p))
       elif(tp==2):
 	return sum(p)%2
       else:
@@ -52,7 +57,7 @@ class honeycomb(raw):
    def line(self,p,q):
       tp = self.inrange(p)
       tq = self.inrange(q)
-      if(tp==tq and tp):
+      if(tp==tq and tp!=0):
 	if(tp==2):
 	   if(p[0]==q[0]):
 		return 1 if(myabs(p[1]-q[1])==1) else 0
@@ -61,18 +66,55 @@ class honeycomb(raw):
 	   else:
 		return 0
 	elif(tp==1):
-	   return self.line(self.pntind(p),self.pntind(q))
+	   return self.line(self(p),self(q))
       else:
 	print erstr % (self.__class__, whoami()); quit(2)
+   def fwdneighb(self,p,form='2d'):
+      tp = self.inrange(p)
+      if(tp==2):
+	nb = []
+	if(p[1]+1<self._l):			  nb.append( [p[0], p[1]+1] )
+	if(self.sublat(p)==0 and p[0]+1<self._w): nb.append( [p[0]+1, p[1]] )
+	if(form=='2d'):	return nb
+	else:		return map(self, nb)
+      elif(tp==1):
+	return self.fwdneighb(self(p),form)
+      else:
+	print erstr % (self.__class__, whoami()); quit(2)
+   def neighb(self,p,form='2d'):
+      tp = self.inrange(p)
+      if(tp==2):
+	nb = self.fwdneighb(p)
+	if(p[1]-1>=0):				  nb.append( [p[0], p[1]-1] )
+	if(self.sublat(p)==1 and p[0]-1>=0):    nb.append( [p[0]-1, p[1]] )
+	if(form=='2d'):	return nb
+	else:		return map(self, nb)
+      elif(tp==1):
+	return self.neighb(self(p),form)
+      else:
+	print erstr % (self.__class__, whoami()); quit(2)
+   def lslinks(self,form='2d',outyp='array'):
+      links = []
+      ps = [[0,0]]
+      while(ps!=[]):
+	fnb = []
+	for p in ps:
+	   ns = self.fwdneighb(p,form='2d')
+	   for n in ns:
+	      if(form=='2d'):	links.append([p,n])
+	      else:		links.append([self(p),self(n)])
+	   fnb.extend(ns)
+	ps = map( self, set( map(self,fnb) ) )
+      return array(links)
    def coord(self,p):
       tp = self.inrange(p)
       if(tp==1):
-	return self.coord(self.pntind(p))
+	return self.coord(self(p))
       elif(tp==2):
 	s = self.sublat(p)
 	x = p[1] * hsqrt3
 	y = -p[0]/2.0 * 3.0 + s*0.5
-	return [ x*self._loe, y*self._loe ]
+	return array([ x*self._loe, y*self._loe ])
       else:
 	print erstr % (self.__class__, whoami()); quit(2)
    def test(self):

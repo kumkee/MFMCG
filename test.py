@@ -25,6 +25,8 @@ print p
 print "-----------"
 #print b.pntind([3,3])
 ppset = [ [a.coord(pp[0]), a.coord(pp[1])] for pp in p ]
-print ppset
 import drawing
-drawing.jmultp(ppset)
+drawing.jmultp(ppset,sty='g--')
+c = grid.honeycomb(20,51,ledge=0.9)
+drawing.drawhoneycomb(c,sty='b-')
+drawing.savefig('test.eps')
