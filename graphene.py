@@ -15,16 +15,5 @@ class graphene(honeycomb):
       elif(boundary=="armchair" or boundary=="a"):
 	w = width/2 * 2
 	self._pbc = 1
-      honeycomb.__init__(self,width,length,ledge)
-      if len(holes)==0: self._holes = holes
-      else:
-	th = self.inrange(holes[0])
-	for h in holes:
-	   if(self.inrange(h)==0): print erstr % (self.__class__, whoami(), whosdaddy()); quit(2)
-	   elif(self.inrange(h)!=th):
-	      print "holes type do not match -- FUNCTON: %s.%s called from %s" % (self.__class__, whoami(), whosdaddy()); quit(2)
-	if(th==2): self._holes = map(self,holes)
-	else: self._holes = holes
-      self.dispm = zeros( (self.nCatoms(),2) )
-   def nCatoms(self):
-      return self.size() - len(self._holes)
+      honeycomb.__init__(self,width,length,holes,ledge)
+      self.dispm = zeros( (self.nvertex(),2) )

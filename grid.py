@@ -1,4 +1,5 @@
 import inspect
+from copy import deepcopy
 from numpy import *
 def whoami():
     return inspect.stack()[1][3]
@@ -33,7 +34,7 @@ class raw:
 	return int(p[0])*self._l + int(p[1])
       elif(tp==1):
 	myp = int(p)
-	return array([ myp/self._l, myp%self._l ])
+	return [ myp/self._l, myp%self._l ]
       else:
 	print "ERROR: Index(ices) out of range -- FUNCTON: %s.%s called from %s" % (self.__class__, whoami(), whosdaddy())
 	quit(2)
@@ -42,9 +43,18 @@ hsqrt3 = 0.86602540378443859659
 erstr="ERROR: Points out of range -- FUNCTON: %s.%s called from %s"
 
 class honeycomb(raw):
-   def __init__(self,width=1,length=1,ledge=1.0):
+   def __init__(self,width=1,length=1,holes=[],ledge=1.0):
       raw.__init__(self,width,length)
       self._loe = ledge
+      if len(holes)==0: self._holes = holes
+      else:
+	th = self.inrange(holes[0])
+	for h in holes:
+	   if(self.inrange(h)==0): print erstr % (self.__class__, whoami(), whosdaddy()); quit(2)
+	   elif(self.inrange(h)!=th):
+	      print "holes type do not match -- FUNCTON: %s.%s called from %s" % (self.__class__, whoami(), whosdaddy()); quit(2)
+	if(th==2): self._holes = map(self,holes)
+	else: self._holes = holes
    def sublat(self,p):
       tp = self.inrange(p)
       if(tp==1):
@@ -69,6 +79,11 @@ class honeycomb(raw):
 	   return self.line(self(p),self(q))
       else:
 	print erstr % (self.__class__, whoami(), whosdaddy()); quit(2)
+   def holes(self,form='1d'):
+      if(form=='2d'):
+	return map(self,self._holes)
+      else:
+	return self._holes
    def neighb(self,p,form='2d'):
       tp = self.inrange(p)
       if(tp==2):
@@ -84,36 +99,45 @@ class honeycomb(raw):
 	return self.neighb(self(p),form)
       else:
 	print erstr % (self.__class__, whoami(), whosdaddy()); quit(2)
+   def dvertex(self,form='2d'):
+      hn = []
+      for h in self._holes:
+	hn.extend(self.neighb(h,form))
+      return hn
+   def nholes(self):
+      return len(self._holes)
+   def ndvertex(self):
+      return len(set(self.dvertex(form='1d')))
+   def nvertex(self):
+      return self.size() - self.nholes()
    def _pnt(self,i,j,form='2d'):
       if(form=='2d'):	return [i,j]
       elif(form=='xy'): return self.coord([i,j])
       else:		return self([i,j])
-   def nlinks(self):
+   def nlines(self):
       w = int(self._w); l = int(self._l)
-      return w*(l-1) + ((l-1)/2+1)*(w/2) + (w-1)/2*(l/2)
-   def lslinks(self,form='2d',outype='array'):
-      if(form=='xy'):	links = zeros((self.nlinks(),2,2),dtype=float)
-      elif(form=='2d'):	links = zeros((self.nlinks(),2,2),dtype=int)
-      else:		links = zeros((self.nlinks(),2),dtype=int)
+      hs = deepcopy(self._holes)
+      lh = 0		#sum of lined-hole pairs
+      while(hs!=[]):
+	h1 = hs.pop()
+	for h2 in hs:
+	   if(self.line(h1,h2)): lh += 1
+      return w*(l-1) + ((l-1)/2+1)*(w/2) + (w-1)/2*(l/2) - self.ndvertex() - lh
+   def lslines(self,form='2d',outype='array'):
+      if(form=='xy'):	lines = zeros((self.nlines(),2,2),dtype=float)
+      elif(form=='2d'):	lines = zeros((self.nlines(),2,2),dtype=int)
+      else:		lines = zeros((self.nlines(),2),dtype=int)
       k = 0
       for i in xrange(self._w):
 	for j in xrange(self._l):
-	   if(j<self._l-1):
-	      links[k] = [self._pnt(i,j,form), self._pnt(i,j+1,form)]
+	   if(j<self._l-1 and not self([i,j]) in self._holes and not self([i,j+1]) in self._holes):
+	      lines[k] = [self._pnt(i,j,form), self._pnt(i,j+1,form)]
 	      k += 1
-	   if(self.sublat([i,j])==0 and i<self._w-1):
-	      links[k] = [self._pnt(i,j,form), self._pnt(i+1,j,form)]
+	   if(self.sublat([i,j])==0 and i<self._w-1 and
+			 not self([i,j]) in self._holes and not self([i+1,j]) in self._holes):
+	      lines[k] = [self._pnt(i,j,form), self._pnt(i+1,j,form)]
 	      k += 1
-      return links
-      """
-      links = []
-      for i in xrange(self._w):
-	for j in xrange(self._l):
-	   if(j<self._l-1): links.append( [self._pnt(i,j,form), self._pnt(i,j+1,form)] )
-	   if(self.sublat([i,j])==0 and i<self._w-1): links.append( [self._pnt(i,j,form), self._pnt(i+1,j,form)] )
-      if(outype=='array'): return array(links)
-      else:		   return links
-      """
+      return lines
    def coord(self,p):
       tp = self.inrange(p)
       if(tp==1):
