@@ -1,6 +1,7 @@
 import inspect
 from copy import deepcopy
 from numpy import *
+
 def whoami():
     return inspect.stack()[1][3]
 def whosdaddy():
@@ -8,6 +9,8 @@ def whosdaddy():
 
 def myabs(x):
    return x if(x>=0) else -x
+
+erstr="ERROR: Points out of range -- FUNCTON: %s.%s called from %s"
 
 class raw:
    def __init__(self,width,length):
@@ -25,6 +28,7 @@ class raw:
       elif(isinstance(p, (int,float))):
 	return 1 if ( 0<=p and p<self.size()) else 0 
       else:
+	print erstr % (self.__class__, whoami(), whosdaddy())
 	return 0
    def pntind(self,p):
       return self(p)
@@ -40,7 +44,6 @@ class raw:
 	quit(2)
 
 hsqrt3 = 0.86602540378443859659
-erstr="ERROR: Points out of range -- FUNCTON: %s.%s called from %s"
 
 class honeycomb(raw):
    def __init__(self,width=1,length=1,holes=[],ledge=1.0):
@@ -62,7 +65,6 @@ class honeycomb(raw):
       elif(tp==2):
 	return sum(p)%2
       else:
-	print erstr % (self.__class__, whoami(), whosdaddy())
 	quit(2)
    def line(self,p,q):
       tp = self.inrange(p)
@@ -123,10 +125,13 @@ class honeycomb(raw):
 	for h2 in hs:
 	   if(self.line(h1,h2)): lh += 1
       return w*(l-1) + ((l-1)/2+1)*(w/2) + (w-1)/2*(l/2) - self.ndvertex() - lh
+   def pointpairsinit(self,n,form='2d'):
+      if(form=='xy'):	pp = zeros((n,2,2),dtype=float)
+      elif(form=='2d'):	pp = zeros((n,2,2),dtype=int)
+      else:		pp = zeros((n,2),dtype=int)
+      return pp
    def lslines(self,form='2d',outype='array'):
-      if(form=='xy'):	lines = zeros((self.nlines(),2,2),dtype=float)
-      elif(form=='2d'):	lines = zeros((self.nlines(),2,2),dtype=int)
-      else:		lines = zeros((self.nlines(),2),dtype=int)
+      lines = self.pointpairsinit(self.nlines(),form)
       k = 0
       for i in xrange(self._w):
 	for j in xrange(self._l):

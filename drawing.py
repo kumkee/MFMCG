@@ -23,7 +23,9 @@ def jmultp(ppairs,sty='g-',output=None):
 
 def drawhoneycomb(honeycomb,sty='g-',output=None):
    pp = honeycomb.lslines(form='xy')
-   '''	array([ array([honeycomb.coord(x), honeycomb.coord(y)]) for x in xrange(honeycomb.size())  
-			for y in xrange(honeycomb.size()) if honeycomb.line(x,y) and x<=y ])
-		# this 2D iteration is very time-consuming '''
    jmultp(pp,sty,output)
+
+def drawgraphene(g,sty1='b-',sty2='g--',output=None):
+   drawhoneycomb(g,sty1,None)
+   pp = g.lspblinks(form='xy')
+   jmultp(pp,sty2,output)

@@ -1,8 +1,11 @@
 from graphene import graphene
-a = graphene(width=4,length=5,holes=[[1,2]])
+a = graphene(width=4,length=5,boundary='z',holes=[8])
 print a.dvertex()
 print a.nlines()
+print a.size(1)
 b = a.lslines()
 print len(b)
-from drawing import drawhoneycomb
-drawhoneycomb(a,output="g.eps")
+print a.brokenedges(2)
+from drawing import *
+drawhoneycomb(a,output="h.eps")
+drawgraphene(a,output="g.eps")
