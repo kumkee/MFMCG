@@ -12,17 +12,17 @@ class raw:
    def __init__(self,width,length):
       self._w = int(width if width>0 else -width)
       self._l = int(length if length>0 else -length)
-      self._n = self._w * self._l
+      #self._n = self._w * self._l
    def size(self,dimension=0):
       if(dimension==0):
-	return self._n
+	return self._w * self._l
       else:
 	return [self._w, self._l]
    def inrange(self,p):
       if(isinstance(p,(list,ndarray)) and isinstance(p[0],(int,float))):
 	return 2 if (len(p)==2 and 0<=p[0] and p[0]<self._w and 0<=p[1] and p[1]<self._l) else 0
       elif(isinstance(p, (int,float))):
-	return 1 if ( 0<=p and p<self._n) else 0 
+	return 1 if ( 0<=p and p<self.size()) else 0 
       else:
 	return 0
    def pntind(self,p):
@@ -39,9 +39,9 @@ class raw:
 	quit(2)
 
 hsqrt3 = 0.86602540378443859659
+erstr="ERROR: Points out of range -- FUNCTON: %s.%s called from %s"
 
 class honeycomb(raw):
-   erstr="ERROR: Points out of range -- FUNCTON: %s.%s called from %s"
    def __init__(self,width=1,length=1,ledge=1.0):
       raw.__init__(self,width,length)
       self._loe = ledge
@@ -69,18 +69,6 @@ class honeycomb(raw):
 	   return self.line(self(p),self(q))
       else:
 	print erstr % (self.__class__, whoami(), whosdaddy()); quit(2)
-   '''def fwdneighb(self,p,form='2d'):
-      tp = self.inrange(p)
-      if(tp==2):
-	nb = []
-	if(p[1]+1<self._l):			  nb.append( [p[0], p[1]+1] )
-	if(self.sublat(p)==0 and p[0]+1<self._w): nb.append( [p[0]+1, p[1]] )
-	if(form=='2d'):	return nb
-	else:		return map(self, nb)
-      elif(tp==1):
-	return self.fwdneighb(self(p),form)
-      else:
-	print erstr % (self.__class__, whoami(), whosdaddy()); quit(2)'''
    def neighb(self,p,form='2d'):
       tp = self.inrange(p)
       if(tp==2):
@@ -100,7 +88,24 @@ class honeycomb(raw):
       if(form=='2d'):	return [i,j]
       elif(form=='xy'): return self.coord([i,j])
       else:		return self([i,j])
+   def nlinks(self):
+      w = int(self._w); l = int(self._l)
+      return w*(l-1) + ((l-1)/2+1)*(w/2) + (w-1)/2*(l/2)
    def lslinks(self,form='2d',outype='array'):
+      if(form=='xy'):	links = zeros((self.nlinks(),2,2),dtype=float)
+      elif(form=='2d'):	links = zeros((self.nlinks(),2,2),dtype=int)
+      else:		links = zeros((self.nlinks(),2),dtype=int)
+      k = 0
+      for i in xrange(self._w):
+	for j in xrange(self._l):
+	   if(j<self._l-1):
+	      links[k] = [self._pnt(i,j,form), self._pnt(i,j+1,form)]
+	      k += 1
+	   if(self.sublat([i,j])==0 and i<self._w-1):
+	      links[k] = [self._pnt(i,j,form), self._pnt(i+1,j,form)]
+	      k += 1
+      return links
+      """
       links = []
       for i in xrange(self._w):
 	for j in xrange(self._l):
@@ -108,6 +113,7 @@ class honeycomb(raw):
 	   if(self.sublat([i,j])==0 and i<self._w-1): links.append( [self._pnt(i,j,form), self._pnt(i+1,j,form)] )
       if(outype=='array'): return array(links)
       else:		   return links
+      """
    def coord(self,p):
       tp = self.inrange(p)
       if(tp==1):
