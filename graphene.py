@@ -17,7 +17,7 @@ class graphene(honeycomb):
 	w = width/2 * 2
 	self._pbc = 1
       honeycomb.__init__(self,w,l,holes,ledge)
-      self.dispm = zeros( (self.nvertex(),2) )
+      self.dispm = zeros( (self.size(),2) )
    def ptype1(self,p):
       if(self.inrange(p)==1):
 	p = self(p)
@@ -79,12 +79,13 @@ class graphene(honeycomb):
 	return links
    def lslinks(self,form='1d'):
       return vstack((self.lslines(form),self.lspblinks(form)))
-   def displacement(self,p,d):
+   def displace(self,p,d):
       tp = self.inrange(p)
       if(tp==0):
 	print erstr % (self.__class__, whoami(), whosdaddy()); quit(2)
       elif(tp==2):
 	p = self(p)
-      self.dispm[p] += d
+      ch = 0 if p in self._holes else 1
+      self.dispm[p] += array(d)*self._loe*ch
 		
 
