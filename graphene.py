@@ -33,15 +33,13 @@ class graphene(honeycomb):
       elif(p in self.dvertex(form='1d')):return 1 #dangling
       else:				 return 2
    def brokenedges(self,etype=2):
+      print 'etype =', etype, whoami(), whosdaddy() ###############
       h = array(self._holes)
-      f = map(lambda p:self.ptype1(p)==etype, h)
+      f = array(map(lambda p:self.ptype1(p)==etype, h))
       return list(h[f])
    def nbrokenedges(self,etype=2):
       return len(self.brokenedges(etype))
-   def link(self,p,q):
-     if(self.line(p,q)):
-	return 1 
-     else:
+   def edgelink(self,p,q):
 	tp = self.inrange(p)
 	if(tp==1):
 	   p = self(p)
@@ -58,11 +56,18 @@ class graphene(honeycomb):
 	      return 0
 	else:
 	   return 0
+   def link(self,p,q):
+     if(self.line(p,q)):
+	return 1 
+     else:
+	return self.edgelink(p,q)
+   def linkedbrokenedges(self):
+      return self.linkedholepairs(self.edgelink)
    def lspblinks(self,form='2d'):
       if(self._pbc==2):
-	links = self.pointpairsinit(self._w-self.nbrokenedges(2),form)
-	print "links init:", links ##################
-	be = self.brokenedges(2)
+	be = self.brokenedges(1)
+	bel = self.linkedbrokenedges()
+	links = self.pointpairsinit(self._w-len(bel),form)
 	j = 0
 	for i in xrange(self._w):
 	   if  not self([i,0]) in be and not self([i,self._l-1]) in be:
@@ -70,8 +75,9 @@ class graphene(honeycomb):
 	      j += 1
 	return links
       elif(self._pbc==1):
-	links = self.pointpairsinit(self._l/2-self.nbrokenedges(1),form)
-	be = self.brokenedges(1)
+	be = self.brokenedges(2)
+	bel = self.linkedbrokenedges()
+	links = self.pointpairsinit(self._l/2-len(bel),form)
 	j = 0 
 	for i in xrange(self._l/2):
 	   if  not self([0,2*i+1]) in be and not self([self._w-1,2*i+1]) in be:

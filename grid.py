@@ -115,21 +115,23 @@ class honeycomb(raw):
    def nholes(self):
       return len(self._holes)
    def ndvertex(self):
-      return len(set(self.dvertex(form='1d')))
+      return len(self.dvertex(form='1d'))
    def nvertex(self):
       return self.size() - self.nholes()
    def _pnt(self,i,j,form='2d'):
       if(form=='2d'):	return [i,j]
       elif(form=='xy'): return self.coord([i,j])
       else:		return self([i,j])
-   def linedholepairs(self):
+   def linkedholepairs(self,relatn):
       hs = deepcopy(self._holes)
       lhp = []		#lined-hole pairs
       while(hs!=[]):
 	h1 = hs.pop()
 	for h2 in hs:
-	   if(self.line(h1,h2)): lhp.append([h1,h2])
+	   if(relatn(h1,h2)): lhp.append([h1,h2])
       return lhp
+   def linedholepairs(self):
+      return self.linkedholepairs(self.line)
    def nlinedhp(self):
       return len(self.linedholepairs())
    def nlines(self):
@@ -164,8 +166,6 @@ class honeycomb(raw):
 	return array([ x*self._loe, y*self._loe ])
       else:
 	print erstr % (self.__class__, whoami(), whosdaddy()); quit(2)
-   def test(self):
-      print "honeycomb Test.", self._l
 
 class square(raw):
    def __init__(self,width):
