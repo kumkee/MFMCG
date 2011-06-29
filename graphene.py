@@ -61,6 +61,7 @@ class graphene(honeycomb):
    def lspblinks(self,form='2d'):
       if(self._pbc==2):
 	links = self.pointpairsinit(self._w-self.nbrokenedges(2),form)
+	print "links init:", links ##################
 	be = self.brokenedges(2)
 	j = 0
 	for i in xrange(self._w):
@@ -77,6 +78,7 @@ class graphene(honeycomb):
 	      links[j] = [self._pnt(0,2*i+1,form), self._pnt(self._w-1,2*i+1,form)]
 	      j += 1
 	return links
+      else: return []
    def lslinks(self,form='1d'):
       return vstack((self.lslines(form),self.lspblinks(form)))
    def displace(self,p,d):

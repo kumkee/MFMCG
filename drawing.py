@@ -28,4 +28,5 @@ def drawhoneycomb(honeycomb,sty='g-',output=None):
 def drawgraphene(g,sty1='b-',sty2='g--',output=None):
    drawhoneycomb(g,sty1,None)
    pp = g.lspblinks(form='xy')
+   #print pp #####################
    jmultp(pp,sty2,output)

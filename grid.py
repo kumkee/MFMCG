@@ -103,8 +103,14 @@ class honeycomb(raw):
 	print erstr % (self.__class__, whoami(), whosdaddy()); quit(2)
    def dvertex(self,form='2d'):
       hn = []
+      lh = list(set([x for y in self.linedholepairs() for x in y]))
       for h in self._holes:
-	hn.extend(self.neighb(h,form))
+	hn.extend(self.neighb(h,form='1d'))
+      hn = list(set(hn))
+      for h in lh:
+	hn.remove(h)
+      if(form=='2d'):
+	hn = map(self,hn)
       return hn
    def nholes(self):
       return len(self._holes)
@@ -116,15 +122,19 @@ class honeycomb(raw):
       if(form=='2d'):	return [i,j]
       elif(form=='xy'): return self.coord([i,j])
       else:		return self([i,j])
-   def nlines(self):
-      w = int(self._w); l = int(self._l)
+   def linedholepairs(self):
       hs = deepcopy(self._holes)
-      lh = 0		#sum of lined-hole pairs
+      lhp = []		#lined-hole pairs
       while(hs!=[]):
 	h1 = hs.pop()
 	for h2 in hs:
-	   if(self.line(h1,h2)): lh += 1
-      return w*(l-1) + ((l-1)/2+1)*(w/2) + (w-1)/2*(l/2) - self.ndvertex() - lh
+	   if(self.line(h1,h2)): lhp.append([h1,h2])
+      return lhp
+   def nlinedhp(self):
+      return len(self.linedholepairs())
+   def nlines(self):
+      w = int(self._w); l = int(self._l)
+      return w*(l-1) + ((l-1)/2+1)*(w/2) + (w-1)/2*(l/2) - self.ndvertex() + self.nlinedhp()
    def pointpairsinit(self,n,form='2d'):
       if(form=='xy'):	pp = zeros((n,2,2),dtype=float)
       elif(form=='2d'):	pp = zeros((n,2,2),dtype=int)
