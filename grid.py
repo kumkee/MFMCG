@@ -87,25 +87,24 @@ class honeycomb(raw):
       else:
 	return self._holes
    def neighb(self,p,form='2d'):
-      tp = self.inrange(p)
-      if(tp==2):
-	#nb = self.fwdneighb(p)
-	nb = []
-	if(self.sublat(p)==1 and p[0]-1>=0):      nb.append( [p[0]-1, p[1]] )
-	if(p[1]-1>=0):				  nb.append( [p[0], p[1]-1] )
-	if(p[1]+1<self._l):			  nb.append( [p[0], p[1]+1] )
-	if(self.sublat(p)==0 and p[0]+1<self._w): nb.append( [p[0]+1, p[1]] )
-	if(form=='2d'):	return nb
-	else:		return map(self, nb)
-      elif(tp==1):
-	return self.neighb(self(p),form)
-      else:
-	print erstr % (self.__class__, whoami(), whosdaddy()); quit(2)
-   def dvertex(self,form='2d'):
+      #print 'from: ', whosdaddy() ##############
+      if(self.inrange(p)==1):
+	p = self(p)
+      nb = []
+      if(self.sublat(p)==1 and p[0]-1>=0):      nb.append( [p[0]-1, p[1]] )
+      if(p[1]-1>=0):				  nb.append( [p[0], p[1]-1] )
+      if(p[1]+1<self._l):			  nb.append( [p[0], p[1]+1] )
+      if(self.sublat(p)==0 and p[0]+1<self._w): nb.append( [p[0]+1, p[1]] )
+      if(form=='2d'):	return nb
+      else:		return map(self, nb)
+   def dvertex(self,form='2d',relation='line',neighbtype='neighb'):
+      ss = 'self.'
+      reln = eval(ss+relation)
+      fneighb = eval(ss+neighbtype)
       hn = []
-      lh = list(set([x for y in self.linedholepairs() for x in y]))
+      lh = list(set([x for y in self.linedholepairs(reln) for x in y]))
       for h in self._holes:
-	hn.extend(self.neighb(h,form='1d'))
+	hn.extend(fneighb(h,form='1d'))
       hn = list(set(hn))
       for h in lh:
 	hn.remove(h)
@@ -130,10 +129,10 @@ class honeycomb(raw):
 	for h2 in hs:
 	   if(relatn(h1,h2)): lhp.append([h1,h2])
       return lhp
-   def linedholepairs(self):
-      return self.linkedholepairs(self.line)
+   def linedholepairs(self,relation):
+      return self.linkedholepairs(relation)
    def nlinedhp(self):
-      return len(self.linedholepairs())
+      return len(self.linedholepairs(self.line))
    def nlines(self):
       w = int(self._w); l = int(self._l)
       return w*(l-1) + ((l-1)/2+1)*(w/2) + (w-1)/2*(l/2) - self.ndvertex() + self.nlinedhp()

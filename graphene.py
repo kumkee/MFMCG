@@ -16,6 +16,12 @@ class graphene(honeycomb):
       elif(boundary=="armchair" or boundary=="a"):
 	w = width/2 * 2
 	self._pbc = 1
+      elif(boundary=="periodic" or boundary=="p"):
+	w = width/2 * 2
+	l = length/2 * 2
+	self._pbc = 3
+      else:
+	self._pbc = 0
       honeycomb.__init__(self,w,l,holes,ledge)
       self.dispm = zeros( (self.size(),2) )
    def ptype1(self,p):
@@ -23,7 +29,8 @@ class graphene(honeycomb):
 	p = self(p)
       zf = ((p[0]==0 or p[0]==self._w-1) and p[1]%2==1)
       af = (p[1]==0 or p[1]==self._l-1)
-      if(zf):	return 2 #zigzag edges
+      if(zf and af): return 3 #both kinds
+      elif(zf):	return 2 #zigzag edges
       elif(af):	return 1 #armchair edges
       else:	return 0
    def ptype0(self,p):
@@ -33,38 +40,57 @@ class graphene(honeycomb):
       elif(p in self.dvertex(form='1d')):return 1 #dangling
       else:				 return 2
    def brokenedges(self,etype=2):
-      print 'etype =', etype, whoami(), whosdaddy() ###############
+      #print 'etype =', etype, whoami(), whosdaddy() ###############
       h = array(self._holes)
-      f = array(map(lambda p:self.ptype1(p)==etype, h))
+      f = array(map(lambda p:self.ptype1(p)==etype or self.ptype1(p)==3, h))
       return list(h[f])
    def nbrokenedges(self,etype=2):
       return len(self.brokenedges(etype))
    def edgelink(self,p,q):
-	tp = self.inrange(p)
-	if(tp==1):
-	   p = self(p)
-	   q = self(q)
-	if(self._pbc==1):
-	   if( p[1]==q[1] and p[1]%2==1 and ([p[0],q[0]]==[0,self._w-1] or [q[0],p[0]]==[0,self._w-1]) ):
-	      return 1
-	   else:
-	      return 0
-	elif(self._pbc==2):
-	   if( p[0]==q[0] and ([p[1],q[1]]==[0,self._l-1] or [q[1],p[1]]==[0,self._l-1]) ):
-	      return 1
-	   else:
-	      return 0
-	else:
-	   return 0
+      tp = self.inrange(p)
+      if(tp==1):
+	p = self(p)
+	q = self(q)
+      Zl = ( p[1]==q[1] and p[1]%2==1 and ([p[0],q[0]]==[0,self._w-1] or [q[0],p[0]]==[0,self._w-1]) )
+      Al = ( p[0]==q[0] and ([p[1],q[1]]==[0,self._l-1] or [q[1],p[1]]==[0,self._l-1]) )
+      if(self._pbc==1):
+	return 1 if Zl else 0
+      elif(self._pbc==2):
+	return 1 if Al else 0
+      elif(self._pbc==3):
+	return 1 if (Zl or Al) else 0
+      else:
+	return 0
    def link(self,p,q):
-     if(self.line(p,q)):
+     if(self.edgelink(p,q)):
 	return 1 
      else:
-	return self.edgelink(p,q)
+	return self.line(p,q)
    def linkedbrokenedges(self):
       return self.linkedholepairs(self.edgelink)
+   def pbneighb(self,p,form='2d'): #periodic boundary neighbor
+      if(self.inrange(p)==1):
+	p = self(p)
+      pbn = []
+      #af = (p[1]==0 or p[1]==self._l-1)
+      if(self._pbc==2 or self._pbc==3):
+	if(p[1]==0):
+	   pbn.append([p[0],self._l-1])
+	elif(p[1]==self._l-1):
+	   pbn.append([p[0],0])
+      #zf = ((p[0]==0 or p[0]==self._w-1) and p[1]%2==1)
+      if(self._pbc==1 or self._pbc==3):
+	if(p[0]==0 and p[1]%2==1):
+	   pbn.append([self._w-1,p[1]])
+	elif(p[0]==self._w-1 and p[1]%2==1):
+	   pbn.append([0,p[1]])
+      pbn.extend(self.neighb(p,form='2d'))
+      if(form=='2d'):	return pbn
+      else:		return map(self,pbn)
+   def danglingc(self,form='2d'):
+      return self.dvertex(form,relation='link',neighbtype='pbneighb')
    def lspblinks(self,form='2d'):
-      if(self._pbc==2):
+      def alinks():
 	be = self.brokenedges(1)
 	bel = self.linkedbrokenedges()
 	links = self.pointpairsinit(self._w-len(bel),form)
@@ -74,7 +100,7 @@ class graphene(honeycomb):
 	      links[j] = [self._pnt(i,0,form), self._pnt(i,self._l-1,form)]
 	      j += 1
 	return links
-      elif(self._pbc==1):
+      def zlinks():
 	be = self.brokenedges(2)
 	bel = self.linkedbrokenedges()
 	links = self.pointpairsinit(self._l/2-len(bel),form)
@@ -84,6 +110,12 @@ class graphene(honeycomb):
 	      links[j] = [self._pnt(0,2*i+1,form), self._pnt(self._w-1,2*i+1,form)]
 	      j += 1
 	return links
+      if(self._pbc==2):
+	return alinks()
+      elif(self._pbc==1):
+	return zlinks()
+      elif(self._pbc==3):
+	return vstack([alinks(),zlinks()])
       else: return []
    def lslinks(self,form='1d'):
       return vstack((self.lslines(form),self.lspblinks(form)))
