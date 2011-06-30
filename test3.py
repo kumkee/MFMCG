@@ -1,5 +1,5 @@
 from graphene import graphene
-a = graphene(width=4,length=7,ledge=1.42,boundary='p',holes=[[0,5]])
+a = graphene(width=15,length=25,ledge=1.42,boundary='o',holes=[[7,12]])
 print "size:",a.size(1)
 print "holes:",a.holes('2d')
 #print "lined hole-pairs:", a.linedholepairs(a.line)

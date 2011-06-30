@@ -9,26 +9,29 @@ class graphene(honeycomb):
       if(boundary=="open" or boundary=="o"):
 	w = width/2 * 2
 	l = length/2 * 2 +1
-	self._pbc = 0
+	self.__pbc = 0
       elif(boundary=="zigzag" or boundary=="z"):
 	l = length/2 * 2
-	self._pbc = 2
+	self.__pbc = 2
       elif(boundary=="armchair" or boundary=="a"):
 	w = width/2 * 2
-	self._pbc = 1
+	self.__pbc = 1
       elif(boundary=="periodic" or boundary=="p"):
 	w = width/2 * 2
 	l = length/2 * 2
-	self._pbc = 3
+	self.__pbc = 3
       else:
-	self._pbc = 0
+	self.__pbc = 0
       honeycomb.__init__(self,w,l,holes,ledge)
       self.dispm = zeros( (self.size(),2) )
+   @property
+   def pbc(self):
+      return self.__pbc
    def ptype1(self,p):
       if(self.inrange(p)==1):
 	p = self(p)
-      zf = ((p[0]==0 or p[0]==self._w-1) and p[1]%2==1)
-      af = (p[1]==0 or p[1]==self._l-1)
+      zf = ((p[0]==0 or p[0]==self.w-1) and p[1]%2==1)
+      af = (p[1]==0 or p[1]==self.l-1)
       if(zf and af): return 3 #both kinds
       elif(zf):	return 2 #zigzag edges
       elif(af):	return 1 #armchair edges
@@ -51,13 +54,13 @@ class graphene(honeycomb):
       if(tp==1):
 	p = self(p)
 	q = self(q)
-      Zl = ( p[1]==q[1] and p[1]%2==1 and ([p[0],q[0]]==[0,self._w-1] or [q[0],p[0]]==[0,self._w-1]) )
-      Al = ( p[0]==q[0] and ([p[1],q[1]]==[0,self._l-1] or [q[1],p[1]]==[0,self._l-1]) )
-      if(self._pbc==1):
+      Zl = ( p[1]==q[1] and p[1]%2==1 and ([p[0],q[0]]==[0,self.w-1] or [q[0],p[0]]==[0,self.w-1]) )
+      Al = ( p[0]==q[0] and ([p[1],q[1]]==[0,self.l-1] or [q[1],p[1]]==[0,self.l-1]) )
+      if(self.pbc==1):
 	return 1 if Zl else 0
-      elif(self._pbc==2):
+      elif(self.pbc==2):
 	return 1 if Al else 0
-      elif(self._pbc==3):
+      elif(self.pbc==3):
 	return 1 if (Zl or Al) else 0
       else:
 	return 0
@@ -72,17 +75,17 @@ class graphene(honeycomb):
       if(self.inrange(p)==1):
 	p = self(p)
       pbn = []
-      #af = (p[1]==0 or p[1]==self._l-1)
-      if(self._pbc==2 or self._pbc==3):
+      #af = (p[1]==0 or p[1]==self.l-1)
+      if(self.pbc==2 or self.pbc==3):
 	if(p[1]==0):
-	   pbn.append([p[0],self._l-1])
-	elif(p[1]==self._l-1):
+	   pbn.append([p[0],self.l-1])
+	elif(p[1]==self.l-1):
 	   pbn.append([p[0],0])
-      #zf = ((p[0]==0 or p[0]==self._w-1) and p[1]%2==1)
-      if(self._pbc==1 or self._pbc==3):
+      #zf = ((p[0]==0 or p[0]==self.w-1) and p[1]%2==1)
+      if(self.pbc==1 or self.pbc==3):
 	if(p[0]==0 and p[1]%2==1):
-	   pbn.append([self._w-1,p[1]])
-	elif(p[0]==self._w-1 and p[1]%2==1):
+	   pbn.append([self.w-1,p[1]])
+	elif(p[0]==self.w-1 and p[1]%2==1):
 	   pbn.append([0,p[1]])
       pbn.extend(self.neighb(p,form='2d'))
       if(form=='2d'):	return pbn
@@ -93,28 +96,28 @@ class graphene(honeycomb):
       def alinks():
 	be = self.brokenedges(1)
 	bel = self.linkedbrokenedges()
-	links = self.pointpairsinit(self._w-len(bel),form)
+	links = self.pointpairsinit(self.w-len(bel),form)
 	j = 0
-	for i in xrange(self._w):
-	   if  not self([i,0]) in be and not self([i,self._l-1]) in be:
-	      links[j] = [self._pnt(i,0,form), self._pnt(i,self._l-1,form)]
+	for i in xrange(self.w):
+	   if  not self([i,0]) in be and not self([i,self.l-1]) in be:
+	      links[j] = [self._pnt(i,0,form), self._pnt(i,self.l-1,form)]
 	      j += 1
 	return links
       def zlinks():
 	be = self.brokenedges(2)
 	bel = self.linkedbrokenedges()
-	links = self.pointpairsinit(self._l/2-len(bel),form)
+	links = self.pointpairsinit(self.l/2-len(bel),form)
 	j = 0 
-	for i in xrange(self._l/2):
-	   if  not self([0,2*i+1]) in be and not self([self._w-1,2*i+1]) in be:
-	      links[j] = [self._pnt(0,2*i+1,form), self._pnt(self._w-1,2*i+1,form)]
+	for i in xrange(self.l/2):
+	   if  not self([0,2*i+1]) in be and not self([self.w-1,2*i+1]) in be:
+	      links[j] = [self._pnt(0,2*i+1,form), self._pnt(self.w-1,2*i+1,form)]
 	      j += 1
 	return links
-      if(self._pbc==2):
+      if(self.pbc==2):
 	return alinks()
-      elif(self._pbc==1):
+      elif(self.pbc==1):
 	return zlinks()
-      elif(self._pbc==3):
+      elif(self.pbc==3):
 	return vstack([alinks(),zlinks()])
       else: return []
    def lslinks(self,form='1d'):
@@ -126,6 +129,6 @@ class graphene(honeycomb):
       elif(tp==2):
 	p = self(p)
       ch = 0 if p in self._holes else 1
-      self.dispm[p] += array(d)*self._loe*ch
+      self.dispm[p] += array(d)*self.loe*ch
 		
 

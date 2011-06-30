@@ -12,19 +12,23 @@ def myabs(x):
 
 erstr="ERROR: Points out of range -- FUNCTON: %s.%s called from %s"
 
-class raw:
+class raw(object):
    def __init__(self,width,length):
-      self._w = int(width if width>0 else -width)
-      self._l = int(length if length>0 else -length)
-      #self._n = self._w * self._l
+      self.__w = int(width if width>0 else -width)
+      self.__l = int(length if length>0 else -length)
+      #self._n = self.w * self.l
+   @property
+   def w(self): return self.__w
+   @property
+   def l(self): return self.__l
    def size(self,dimension=0):
       if(dimension==0):
-	return self._w * self._l
+	return self.w * self.l
       else:
-	return [self._w, self._l]
+	return [self.w, self.l]
    def inrange(self,p):
       if(isinstance(p,(list,ndarray)) and isinstance(p[0],(int,float))):
-	return 2 if (len(p)==2 and 0<=p[0] and p[0]<self._w and 0<=p[1] and p[1]<self._l) else 0
+	return 2 if (len(p)==2 and 0<=p[0] and p[0]<self.w and 0<=p[1] and p[1]<self.l) else 0
       elif(isinstance(p, (int,float))):
 	return 1 if ( 0<=p and p<self.size()) else 0 
       else:
@@ -35,10 +39,10 @@ class raw:
    def __call__(self,p):
       tp = self.inrange(p)
       if(tp==2):
-	return int(p[0])*self._l + int(p[1])
+	return int(p[0])*self.l + int(p[1])
       elif(tp==1):
 	myp = int(p)
-	return [ myp/self._l, myp%self._l ]
+	return [ myp/self.l, myp%self.l ]
       else:
 	print "ERROR: Index(ices) out of range -- FUNCTON: %s.%s called from %s" % (self.__class__, whoami(), whosdaddy())
 	quit(2)
@@ -48,7 +52,7 @@ hsqrt3 = 0.86602540378443859659
 class honeycomb(raw):
    def __init__(self,width=1,length=1,holes=[],ledge=1.0):
       raw.__init__(self,width,length)
-      self._loe = ledge
+      self.__loe = ledge
       if len(holes)==0: self._holes = holes
       else:
 	th = self.inrange(holes[0])
@@ -58,6 +62,8 @@ class honeycomb(raw):
 	      print "holes type do not match -- FUNCTON: %s.%s called from %s" % (self.__class__, whoami(), whosdaddy()); quit(2)
 	if(th==2): self._holes = map(self,holes)
 	else: self._holes = holes
+   @property
+   def loe(self): return self.__loe
    def sublat(self,p):
       tp = self.inrange(p)
       if(tp==1):
@@ -93,8 +99,8 @@ class honeycomb(raw):
       nb = []
       if(self.sublat(p)==1 and p[0]-1>=0):      nb.append( [p[0]-1, p[1]] )
       if(p[1]-1>=0):				  nb.append( [p[0], p[1]-1] )
-      if(p[1]+1<self._l):			  nb.append( [p[0], p[1]+1] )
-      if(self.sublat(p)==0 and p[0]+1<self._w): nb.append( [p[0]+1, p[1]] )
+      if(p[1]+1<self.l):			  nb.append( [p[0], p[1]+1] )
+      if(self.sublat(p)==0 and p[0]+1<self.w): nb.append( [p[0]+1, p[1]] )
       if(form=='2d'):	return nb
       else:		return map(self, nb)
    def dvertex(self,form='2d',relation='line',neighbtype='neighb'):
@@ -134,7 +140,7 @@ class honeycomb(raw):
    def nlinedhp(self):
       return len(self.linedholepairs(self.line))
    def nlines(self):
-      w = int(self._w); l = int(self._l)
+      w = int(self.w); l = int(self.l)
       return w*(l-1) + ((l-1)/2+1)*(w/2) + (w-1)/2*(l/2) - self.ndvertex() + self.nlinedhp()
    def pointpairsinit(self,n,form='2d'):
       if(form=='xy'):	pp = zeros((n,2,2),dtype=float)
@@ -144,12 +150,12 @@ class honeycomb(raw):
    def lslines(self,form='2d',outype='array'):
       lines = self.pointpairsinit(self.nlines(),form)
       k = 0
-      for i in xrange(self._w):
-	for j in xrange(self._l):
-	   if(j<self._l-1 and not self([i,j]) in self._holes and not self([i,j+1]) in self._holes):
+      for i in xrange(self.w):
+	for j in xrange(self.l):
+	   if(j<self.l-1 and not self([i,j]) in self._holes and not self([i,j+1]) in self._holes):
 	      lines[k] = [self._pnt(i,j,form), self._pnt(i,j+1,form)]
 	      k += 1
-	   if(self.sublat([i,j])==0 and i<self._w-1 and
+	   if(self.sublat([i,j])==0 and i<self.w-1 and
 			 not self([i,j]) in self._holes and not self([i+1,j]) in self._holes):
 	      lines[k] = [self._pnt(i,j,form), self._pnt(i+1,j,form)]
 	      k += 1
@@ -162,7 +168,7 @@ class honeycomb(raw):
 	s = self.sublat(p)
 	x = p[1] * hsqrt3
 	y = -p[0]/2.0 * 3.0 + s*0.5
-	return array([ x*self._loe, y*self._loe ])
+	return array([ x*self.loe, y*self.loe ])
       else:
 	print erstr % (self.__class__, whoami(), whosdaddy()); quit(2)
 
