@@ -10,7 +10,8 @@ def whosdaddy():
 def myabs(x):
    return x if(x>=0) else -x
 
-erstr="ERROR: Points out of range -- FUNCTON: %s.%s called from %s"
+erstr="ERROR: Point-index out of range -- FUNCTON: %s.%s called from %s"
+funcn="(self.__class__, whoami(), whosdaddy())"
 
 class raw(object):
    def __init__(self,width,length):
@@ -27,13 +28,18 @@ class raw(object):
       else:
 	return [self.w, self.l]
    def inrange(self,p):
-      if(isinstance(p,(list,ndarray)) and isinstance(p[0],(int,float))):
-	return 2 if (len(p)==2 and 0<=p[0] and p[0]<self.w and 0<=p[1] and p[1]<self.l) else 0
+      tp = 0
+      if(isinstance(p,(list,ndarray))):
+	if(isinstance(p[0],(int,float))):
+	   tp = 2 if (len(p)==2 and 0<=p[0] and p[0]<self.w and 0<=p[1] and p[1]<self.l) else 0
       elif(isinstance(p, (int,float))):
-	return 1 if ( 0<=p and p<self.size()) else 0 
-      else:
-	print erstr % (self.__class__, whoami(), whosdaddy())
-	return 0
+	tp = 1 if ( 0<=p and p<self.size()) else 0 
+      try:
+	1/tp
+	return tp
+      except:
+	print erstr % eval(funcn)
+	raise
    def pntind(self,p):
       return self(p)
    def __call__(self,p):
@@ -43,9 +49,6 @@ class raw(object):
       elif(tp==1):
 	myp = int(p)
 	return [ myp/self.l, myp%self.l ]
-      else:
-	print "ERROR: Index(ices) out of range -- FUNCTON: %s.%s called from %s" % (self.__class__, whoami(), whosdaddy())
-	quit(2)
 
 hsqrt3 = 0.86602540378443859659
 
@@ -93,7 +96,6 @@ class honeycomb(raw):
       else:
 	return self._holes
    def neighb(self,p,form='2d'):
-      #print 'from: ', whosdaddy() ##############
       if(self.inrange(p)==1):
 	p = self(p)
       nb = []
@@ -123,6 +125,12 @@ class honeycomb(raw):
       return len(self.dvertex(form='1d'))
    def nvertex(self):
       return self.size() - self.nholes()
+   def pnt(self,p,form='2d'):
+      tp = self.inrange(p)
+      if((form=='2d' and tp==1) or (form=='1d' and tp==2)):
+	return self(p)
+      if(form=='xy'):
+	return self.coord(p)
    def _pnt(self,i,j,form='2d'):
       if(form=='2d'):	return [i,j]
       elif(form=='xy'): return self.coord([i,j])

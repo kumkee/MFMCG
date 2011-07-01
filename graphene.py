@@ -1,5 +1,6 @@
 from numpy import *
 from grid import *
+from numpy.linalg import norm
 
 #erstr="ERROR: Points out of range -- FUNCTON: %s.%s called from %s"
 
@@ -23,10 +24,15 @@ class graphene(honeycomb):
       else:
 	self.__pbc = 0
       honeycomb.__init__(self,w,l,holes,ledge)
-      self.dispm = zeros( (self.size(),2) )
+      self._dispm = zeros( (self.size(),2) )
    @property
    def pbc(self):
       return self.__pbc
+   def dispm(self,p):
+      p = self.pnt(p,'1d')
+      return self._dispm[p]
+   def ddispm(self,p,q):
+      return norm(self.dispm(p) - self.dispm(q))
    def ptype1(self,p):
       if(self.inrange(p)==1):
 	p = self(p)
@@ -43,7 +49,6 @@ class graphene(honeycomb):
       elif(p in self.dvertex(form='1d')):return 1 #dangling
       else:				 return 2
    def brokenedges(self,etype=2):
-      #print 'etype =', etype, whoami(), whosdaddy() ###############
       h = array(self._holes)
       f = array(map(lambda p:self.ptype1(p)==etype or self.ptype1(p)==3, h))
       return list(h[f])
@@ -121,14 +126,19 @@ class graphene(honeycomb):
 	return vstack([alinks(),zlinks()])
       else: return []
    def lslinks(self,form='1d'):
-      return vstack((self.lslines(form),self.lspblinks(form)))
-   def displace(self,p,d):
-      tp = self.inrange(p)
-      if(tp==0):
-	print erstr % (self.__class__, whoami(), whosdaddy()); quit(2)
-      elif(tp==2):
+      pbl = self.lspblinks(form)
+      print "pbl = ", pbl #####
+      if(pbl==[]):
+	return self.lslines(form)
+      else:
+	return vstack((self.lslines(form),pbl))
+   def isC(self,p):
+      if(self.inrange(p)==2):
 	p = self(p)
-      ch = 0 if p in self._holes else 1
-      self.dispm[p] += array(d)*self.loe*ch
+      return 0 if p in self._holes else 1
+   def _displace(self,p,d):
+      if(self.inrange(p)==2):
+	p = self(p)
+      self._dispm[p] += array(d)*self.loe*self.isC(p)
 		
 
