@@ -33,6 +33,15 @@ class graphene(honeycomb):
       return self._dispm[p]
    def ddispm(self,p,q):
       return norm(self.dispm(p) - self.dispm(q))
+   def loc(self,p):
+      return self.pnt(p,'xy') + self.dispm(p)
+   def ddistance(self,p,q):
+      try:
+	1/self.link(p,q)
+      except:
+	print "%s and %s are not linked" % (p,q)
+	raise
+      return  norm(self.loc(p)-self.loc(q)) - self.loe
    def ptype1(self,p):
       if(self.inrange(p)==1):
 	p = self(p)

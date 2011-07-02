@@ -46,9 +46,9 @@ class ham(object):
 
    def diag(self,pp):
       return 1 if self.g.pnt(pp[0],'1d')==self.g.pnt(pp[1],'1d') else 0
+
    def tij(self,ppair):
-      d = map(self.g.dispm,ppair)
-      return self.t0 * (1.0 + self.alp*reduce(self.g.ddispm,ppair)) \
+      return self.t0 * (1.0 - self.alp*reduce(self.g.ddistance,ppair)) \
 			* self.g.allC(ppair) * reduce(self.g.link,ppair)
    def oscp(self,pp):
-      return self.omg * self.osc * self.dig(pp) * self.g.allC(ppair)
+      return self.omg * self.osc * self.diag(pp) * self.g.allC(pp)

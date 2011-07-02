@@ -40,4 +40,4 @@ print "h.displace(0,[0.1,0.1])"
 h.displace(0,[0.1,0.1])
 print "h.tij(0,1)",h.tij([0,1])
 print "h.osc",h.osc
-#print "osc", h.oscp()
+print "osc", h.oscp([0,0])
