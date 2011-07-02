@@ -1,5 +1,4 @@
 import graphene as grap
-from numpy.linalg import norm
 from numpy import *
 
 class ham(object):
@@ -32,24 +31,24 @@ class ham(object):
       self.__ed = Ed
       self.__omg = vibration
       self.__alp = ssh
-      self.__osc = 0. 
-      for i,j in self.g.lslinks('1d'):
-	p = self.g.dispm(i)
-	q = self.g.dispm(j)
-	print "i: %s, j: %s	p,q: %s,%s" % (i,j,p,q)
-	self.__osc += norm(p-q)**2
-      self.__osc *= self.omg
-      #def tmp(x): 
-	#return norm(self.g.dispm(x.item(0))-self.g.dispm(x.item(1)))**2
-      #self.__osc = self.__omg * sum(map(tmp,self.g.lslinks('1d')))
+      self.__osc = reduce(lambda x,y:x+y, 
+		      map(lambda x:reduce(self.g.ddispm,x)**2, self.g.lslinks('1d')))
  
    def lmd(self): return self.alp**2/self.t0/self.omg
+   
+   def displace(self,p,d):
+      def f(x):
+	return self.g.isC(p) * self.g.ddispm(p,x)**2
+      pnb = self.g.pbneighb(p,'1d')
+      self.__osc -= reduce(lambda x,y:x+y, map(f,pnb))
+      self.g._displace(p,d)
+      self.__osc += reduce(lambda x,y:x+y, map(f,pnb))
 
+   def diag(self,pp):
+      return 1 if self.g.pnt(pp[0],'1d')==self.g.pnt(pp[1],'1d') else 0
    def tij(self,ppair):
       d = map(self.g.dispm,ppair)
-      return self.t0 * (1.0 - self.alp*norm(d[0]-d[1])) \
-		* self.g.isC(ppair[0]) * self.g.isC(ppair[1]) \
-			* self.g.link(ppair[0],ppair[1])
-
-   def oscp(self,pp=0):
-      return 1
+      return self.t0 * (1.0 + self.alp*reduce(self.g.ddispm,ppair)) \
+			* self.g.allC(ppair) * reduce(self.g.link,ppair)
+   def oscp(self,pp):
+      return self.omg * self.osc * self.dig(pp) * self.g.allC(ppair)

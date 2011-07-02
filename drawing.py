@@ -13,6 +13,7 @@ def savefig(output='sample.eps'):
    pylab.xticks([])
    pylab.yticks([])
    pylab.axis('scaled')
+   pylab.axis('off')
    pylab.savefig(output)
 
 def jmultp(ppairs,sty='g-',output=None):

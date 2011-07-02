@@ -58,38 +58,20 @@ class honeycomb(raw):
       self.__loe = ledge
       if len(holes)==0: self._holes = holes
       else:
-	th = self.inrange(holes[0])
-	for h in holes:
-	   if(self.inrange(h)==0): print erstr % (self.__class__, whoami(), whosdaddy()); quit(2)
-	   elif(self.inrange(h)!=th):
-	      print "holes type do not match -- FUNCTON: %s.%s called from %s" % (self.__class__, whoami(), whosdaddy()); quit(2)
-	if(th==2): self._holes = map(self,holes)
-	else: self._holes = holes
+	self._holes = map(lambda x: self.pnt(x,'1d'), holes)
    @property
    def loe(self): return self.__loe
    def sublat(self,p):
-      tp = self.inrange(p)
-      if(tp==1):
-	return self.sublat(self(p))
-      elif(tp==2):
-	return sum(p)%2
-      else:
-	quit(2)
+      p = self.pnt(p,'2d')
+      return sum(p)%2
    def line(self,p,q):
-      tp = self.inrange(p)
-      tq = self.inrange(q)
-      if(tp==tq and tp!=0):
-	if(tp==2):
-	   if(p[0]==q[0]):
-		return 1 if(myabs(p[1]-q[1])==1) else 0
-	   elif(p[1]==q[1]):
-		return 1 if( (p[0]-q[0]==1 and self.sublat(p)==1) or (q[0]-p[0]==1 and self.sublat(q)==1) ) else 0
-	   else:
-		return 0
-	elif(tp==1):
-	   return self.line(self(p),self(q))
+      p,q = map(lambda x:self.pnt(x,'2d'),(p,q))
+      if(p[0]==q[0]):
+	return 1 if(myabs(p[1]-q[1])==1) else 0
+      elif(p[1]==q[1]):
+	return 1 if( (p[0]-q[0]==1 and self.sublat(p)==1) or (q[0]-p[0]==1 and self.sublat(q)==1) ) else 0
       else:
-	print erstr % (self.__class__, whoami(), whosdaddy()); quit(2)
+	return 0
    def holes(self,form='1d'):
       if(form=='2d'):
 	return map(self,self._holes)
@@ -100,9 +82,9 @@ class honeycomb(raw):
 	p = self(p)
       nb = []
       if(self.sublat(p)==1 and p[0]-1>=0):      nb.append( [p[0]-1, p[1]] )
-      if(p[1]-1>=0):				  nb.append( [p[0], p[1]-1] )
-      if(p[1]+1<self.l):			  nb.append( [p[0], p[1]+1] )
-      if(self.sublat(p)==0 and p[0]+1<self.w): nb.append( [p[0]+1, p[1]] )
+      if(p[1]-1>=0):				nb.append( [p[0], p[1]-1] )
+      if(p[1]+1<self.l):			nb.append( [p[0], p[1]+1] )
+      if(self.sublat(p)==0 and p[0]+1<self.w):  nb.append( [p[0]+1, p[1]] )
       if(form=='2d'):	return nb
       else:		return map(self, nb)
    def dvertex(self,form='2d',relation='line',neighbtype='neighb'):
@@ -129,12 +111,12 @@ class honeycomb(raw):
       tp = self.inrange(p)
       if((form=='2d' and tp==1) or (form=='1d' and tp==2)):
 	return self(p)
-      if(form=='xy'):
+      elif((form=='2d' and tp==2) or (form=='1d' and tp==1)):
+      	return p
+      elif(form=='xy'):
 	return self.coord(p)
-   def _pnt(self,i,j,form='2d'):
-      if(form=='2d'):	return [i,j]
-      elif(form=='xy'): return self.coord([i,j])
-      else:		return self([i,j])
+      else:
+	return p
    def linkedholepairs(self,relatn):
       hs = deepcopy(self._holes)
       lhp = []		#lined-hole pairs
@@ -161,24 +143,19 @@ class honeycomb(raw):
       for i in xrange(self.w):
 	for j in xrange(self.l):
 	   if(j<self.l-1 and not self([i,j]) in self._holes and not self([i,j+1]) in self._holes):
-	      lines[k] = [self._pnt(i,j,form), self._pnt(i,j+1,form)]
+	      lines[k] = [self.pnt([i,j],form), self.pnt([i,j+1],form)]
 	      k += 1
 	   if(self.sublat([i,j])==0 and i<self.w-1 and
 			 not self([i,j]) in self._holes and not self([i+1,j]) in self._holes):
-	      lines[k] = [self._pnt(i,j,form), self._pnt(i+1,j,form)]
+	      lines[k] = [self.pnt([i,j],form), self.pnt([i+1,j],form)]
 	      k += 1
       return lines
    def coord(self,p):
-      tp = self.inrange(p)
-      if(tp==1):
-	return self.coord(self(p))
-      elif(tp==2):
-	s = self.sublat(p)
-	x = p[1] * hsqrt3
-	y = -p[0]/2.0 * 3.0 + s*0.5
-	return array([ x*self.loe, y*self.loe ])
-      else:
-	print erstr % (self.__class__, whoami(), whosdaddy()); quit(2)
+      p = self.pnt(p,'2d')
+      s = self.sublat(p)
+      x = p[1] * hsqrt3
+      y = -p[0]/2.0 * 3.0 + s*0.5
+      return array([ x*self.loe, y*self.loe ])
 
 class square(raw):
    def __init__(self,width):

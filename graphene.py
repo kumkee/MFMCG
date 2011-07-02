@@ -55,10 +55,7 @@ class graphene(honeycomb):
    def nbrokenedges(self,etype=2):
       return len(self.brokenedges(etype))
    def edgelink(self,p,q):
-      tp = self.inrange(p)
-      if(tp==1):
-	p = self(p)
-	q = self(q)
+      p,q = map(lambda x:self.pnt(x,'2d'),(p,q))
       Zl = ( p[1]==q[1] and p[1]%2==1 and ([p[0],q[0]]==[0,self.w-1] or [q[0],p[0]]==[0,self.w-1]) )
       Al = ( p[0]==q[0] and ([p[1],q[1]]==[0,self.l-1] or [q[1],p[1]]==[0,self.l-1]) )
       if(self.pbc==1):
@@ -105,7 +102,7 @@ class graphene(honeycomb):
 	j = 0
 	for i in xrange(self.w):
 	   if  not self([i,0]) in be and not self([i,self.l-1]) in be:
-	      links[j] = [self._pnt(i,0,form), self._pnt(i,self.l-1,form)]
+	      links[j] = [self.pnt([i,0],form), self.pnt([i,self.l-1],form)]
 	      j += 1
 	return links
       def zlinks():
@@ -115,7 +112,7 @@ class graphene(honeycomb):
 	j = 0 
 	for i in xrange(self.l/2):
 	   if  not self([0,2*i+1]) in be and not self([self.w-1,2*i+1]) in be:
-	      links[j] = [self._pnt(0,2*i+1,form), self._pnt(self.w-1,2*i+1,form)]
+	      links[j] = [self.pnt([0,2*i+1],form), self.pnt([self.w-1,2*i+1],form)]
 	      j += 1
 	return links
       if(self.pbc==2):
@@ -127,7 +124,7 @@ class graphene(honeycomb):
       else: return []
    def lslinks(self,form='1d'):
       pbl = self.lspblinks(form)
-      print "pbl = ", pbl #####
+      #print "pbl = ", pbl #####
       if(pbl==[]):
 	return self.lslines(form)
       else:
@@ -136,6 +133,8 @@ class graphene(honeycomb):
       if(self.inrange(p)==2):
 	p = self(p)
       return 0 if p in self._holes else 1
+   def allC(self,plist):
+      return reduce(lambda x,y:x*y, map(self.isC,plist))
    def _displace(self,p,d):
       if(self.inrange(p)==2):
 	p = self(p)
