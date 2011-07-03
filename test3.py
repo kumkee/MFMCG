@@ -44,4 +44,3 @@ print "h.osc",h.osc
 print "osc", h.oscp([0,0])
 c = eden(h)
 print "c = eden(h)"
-print h.Hj(0,c,[192,192])
