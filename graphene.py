@@ -103,6 +103,8 @@ class graphene(honeycomb):
       else:		return map(self,pbn)
    def danglingc(self,form='2d'):
       return self.dvertex(form,relation='link',neighbtype='pbneighb')
+   def ndanglingc(self):
+      return len(self.danglingc(form='1d'))
    def lspblinks(self,form='2d'):
       def alinks():
 	be = self.brokenedges(1)
