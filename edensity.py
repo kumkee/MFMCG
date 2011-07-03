@@ -1,0 +1,65 @@
+from numpy import *
+
+def flip(x):
+   return (not x)*1
+   
+def spinud(d,u):
+   return (u-d)/2.
+
+class eden(object):
+   @property
+   def g(self): return self.__g
+   @property
+   def h(self): return self.__h
+   @property
+   def den(self): return self.__den
+   @den.setter
+   def den(self,newd):
+    try:
+      if(self.__den.shape==newd.shape):
+	self.__den = newd
+      else:
+	try: 1/0
+	except:
+	   print "den shapes not match"
+	raise
+    except:
+      print "den require an array"
+      raise
+   @property
+   def eden(self): return self.__den[:,:self.__nc]
+   @eden.setter
+   def eden(self,newd):
+      self.__den[:,:self.__nc] = newd
+   @property
+   def dden(self): return self.__den[:,-self.__nd:]
+   @dden.setter
+   def dden(self,newd):
+      self.__den[:,-self.__nd:] = newd
+   @property
+   def V(self): return self.__V
+   def __init__(self,h,density=None,vinit=None,dspin=None):
+      self.__g = h.g
+      self.__h = h
+      self.__nd = self.g.ndanglingc()
+      self.__nc = self.g.nvertex()
+      self.__den = zeros((2,self.__nc+self.__nd),dtype=float)
+      if(vinit==None):
+	self.__V = ones(self.__nd,dtype=float)*(-1. if h.J>0 else 1.)*20.*h.U
+      else:
+	self.__V = ones(self.__nd,dtype=float)*vinit
+      if(density==None):
+	for i in xrange(self.__nc):
+	   sl = self.g.sublat( self.h.i2p(i,'1d') )
+	   self.den[:,i] = [sl, flip(sl)]
+      else:
+	self.eden = density
+      if(dspin==None):
+	self.dden[1,:] = 1
+      else:
+	sf = map(flip,density)
+	for i in xrange(self.__nd):
+	   self.dden[:,i] = [flip(sf[i]),sf[i]]
+   def spin(self,i):
+      return reduce(spinud, self.den[:,i])#(self.den[1,i] - self.den[0,i]) /2.
+      

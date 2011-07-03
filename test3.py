@@ -1,5 +1,6 @@
 from graphene import graphene
 from drawing import *
+from edensity import *
 #import graphene
 #import drawing
 #import pp
@@ -41,3 +42,5 @@ h.displace(0,[0.1,0.1])
 print "h.tij(0,1)",h.tij([0,1])
 print "h.osc",h.osc
 print "osc", h.oscp([0,0])
+c = eden(h)
+print "c = eden(h)"
