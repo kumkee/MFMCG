@@ -86,11 +86,12 @@ class ham(object):
 	   tmp += dot( map( eden.spin, di ),
 			   map(eden.spin, dd) )   #<S><S> term
 	   tmp -= sum(map(lambda x:x**2, eden.V)) /2.			# V^2 term
-	i = ip[0]
-	if(i in di):
-	   tmp -= (-1)**(spin+1) * eden.spin(self.i2id(i))
-	if(i in dd):
-	   tmp -= (-1)**(spin+1) * eden.spin(self.id2i(i))
+	   i = ip[0]
+	   if(i in di):
+	      tmp -= (-1)**(spin+1) * eden.spin(self.i2id(i))
+	   if(i in dd):
+	      print 'yes'
+	      tmp -= (-1)**(spin+1) * eden.spin(self.id2i(i))
         return tmp
 
 #---------------------------------------------------------------#
@@ -134,4 +135,4 @@ class ham(object):
       i = list(self.g.danglingc('1d')).index(d)
       return i + self.__nc
    def i2id(self,i):
-      self.p2id(self.i2p(i))
+      return self.p2id(self.i2p(i))
