@@ -145,7 +145,7 @@ class graphene(honeycomb):
 	p = self(p)
       return 0 if p in self._holes else 1
    def allC(self,plist):
-      return reduce(lambda x,y:x*y, map(self.isC,plist))
+      return product(map(self.isC,plist))
    def _displace(self,p,d):
       if(self.inrange(p)==2):
 	p = self(p)

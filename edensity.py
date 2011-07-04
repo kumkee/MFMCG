@@ -62,4 +62,14 @@ class eden(object):
 	   self.dden[:,i] = [flip(sf[i]),sf[i]]
    def spin(self,i):
       return reduce(spinud, self.den[:,i])#(self.den[1,i] - self.den[0,i]) /2.
-      
+   def Vi(self,i):
+      if(self.h.iind(i)):
+	return self.V[i-self.__nc]
+      elif(self.h.iinC(i)):
+	if(self.h.iind(self.h.i2id(i))):
+	   return self.V[self.h.i2id(i)-self.__nc]
+      else:
+	try: 1/0
+	except:
+	   print "ERROR: i not a dangling C or spin"
+	   raise

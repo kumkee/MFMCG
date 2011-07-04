@@ -29,19 +29,14 @@ print "h = ham(graphene=a)"
 h = ham(graphene=a)
 print "h.g.size(1)",h.g.size(1)
 print "h.osc",h.osc
-print "h.tij(0,1)",h.tij([0,1])
 hh = h.g.holes()[0]
 print "h.g.hole", hh
 hn = h.g.neighb(hh,'1d')[0]
 print "link(hn,hh):", h.g.link(hn,hh)
-print "tij(hn,hh):", h.tij([hn,hh])
-print "h.tij(0,1)",h.tij([0,1])
 print "h.osc",h.osc
 print "h.displace(0,[0.1,0.1])"
 h.displace(0,[0.1,0.1])
-print "h.tij(0,1)",h.tij([0,1])
 print "h.osc",h.osc
-print "osc", h.oscp([0,0])
 c = eden(h)
 print "c = eden(h)"
 print h.Hj(0,c,[192,192])

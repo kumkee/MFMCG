@@ -19,8 +19,10 @@ class ham(object):
    def alp(self):return self.__alp
    @property
    def osc(self):return self.__osc
+   @property
+   def dim(self):return self.__dim
    def __init__(self,width=6,length=10,boundary="open",holes=[],ledge=1.,
-			graphene=None, hopping=-1.0,coulomb=2.0,
+			graphene=None, hopping=1.0,coulomb=2.0,
 			spincoupling=0.1, Ed=1.0, vibration=20.0, ssh=2.0 ):
       if(graphene==None):
 	self.__g = grap.graphene(width,length,boundary,holes,ledge)
@@ -32,8 +34,9 @@ class ham(object):
       self.__ed = Ed
       self.__omg = vibration
       self.__alp = ssh
-      self.__osc = sum( 
-		      map(lambda x:reduce(self.g.ddispm,x)**2, self.g.lslinks('1d')))
+      self.__osc = sum(
+			map(lambda x:reduce(self.g.ddispm,x)**2,
+						self.g.lslinks('1d')))
       self.__nd = self.g.ndanglingc()
       self.__nc = self.g.nvertex()
       self.__dim = self.__nc + self.__nd
@@ -48,55 +51,75 @@ class ham(object):
       self.g._displace(p,d)
       self.__osc += sum(map(f,pnb))
 
-   def diag(self,ip):
-      if(ip[0]!=ip[1]):
+   def diag(self,ip):	#ip: index-pair of the matrix
+      if(not reduce(lambda x,y:x==y, ip)):
 	return 0
-      elif(self.iinC(ip[0]) or self.iind(ip[1])):
+      elif(product(map(self.iinCd,ip))==1):
         return 1
       else:
 	return 0
 
-   def tij(self,ppair):
-      return self.t0 * (1.0 - self.alp*reduce(self.g.ddistance,ppair)) \
-			* self.g.allC(ppair) * reduce(self.g.link,ppair)
-   def oscp(self,pp):
-      return self.omg * self.osc * self.diag(pp) * self.g.allC(pp)
+   def Ht(self,ip):
+      if( product(map(self.iinC,ip)) ):
+	return -self.t0 * (1.0 - self.alp*reduce(self.g.ddistance,ip))\
+				if reduce(self.g.link,ip) else 0.
+      else:
+	return 0.
 
    def Hu(self,spin,eden,ip):
-      if(product(map(self.iinC,ip))==0):
+      if(not product(map(self.iinCd,ip))):
 	return 0
-      elif(self.diag(map(self.i2p,ip))==0):
-	return 0
-      else:
+      elif(self.diag(ip)):
 	i = ip[0]
 	tmp = 0
 	if(self.iinC(i)):
-	   tmp = eden.eden[flip(spin),i]
-	tmp -= dot(eden.eden[0], eden.eden[1])
+	   tmp = eden.eden[flip(spin),i] #<n>n term
+	tmp -= reduce(dot,eden.eden)	 #<n><n> term
 	return self.U * tmp
+      else:
+	return 0
 
    def Hj(self,spin,eden,ip):
       tmp = 0.
-      if( not(product(self.iinCd))):
+      if( not(product(map(self.iinCd,ip))):
 	return tmp
       else:
-	di = map(self.p2i, self.g.danglingc('1d'))
-	dd = range(self.__nc,self.__dim)
-	if(self.diag(ip)):
-	   tmp += dot( map( eden.spin, di ),
-			   map(eden.spin, dd) )   #<S><S> term
-	   tmp -= sum(map(lambda x:x**2, eden.V)) /2.			# V^2 term
-	   i = ip[0]
-	   if(i in di):
-	      tmp -= (-1)**(spin+1) * eden.spin(self.i2id(i))
-	   if(i in dd):
-	      tmp -= (-1)**(spin+1) * eden.spin(self.id2i(i))
 	i = ip[0]
-	if(i in di):
-	   tmp -= (-1)**(spin+1) * eden.spin(self.i2id(i))
-	if(i in dd):
-	   tmp -= (-1)**(spin+1) * eden.spin(self.id2i(i))
-        return tmp
+	j = ip[1]
+	di = map(self.p2i, self.g.danglingc('1d')) #dangling vertece
+	dd = range(self.__nc,self.__dim)	   #dangling spins
+	if(self.diag(ip)):
+	   tmp += dot( map(eden.spin, di), map(eden.spin, dd) )  # <S><S> term
+	   tmp -= sum(map(lambda x:x**2, eden.V)) /2.		 # V^2 term
+	   spin = 1 if spin else 0
+	   if(i in di):
+	      tmp -= (-1)**(spin+1) * eden.spin(self.i2id(i))/2. # <S>Sd terms
+	   if(i in dd):
+	      tmp -= (-1)**(spin+1) * eden.spin(self.id2i(i))/2. # <Sd>S terms
+	else:
+	   if(i in di):
+	      if(self.i2id(i)==j):
+		tmp -= eden.V[j-self.__nc]/2.
+	   elif(i in dd):
+	      if(self.id2i(i)==j):
+		tmp -= eden.V[i-self.__nc]/2.
+        return self.J * tmp
+
+   def Hd(self,ip):
+      if(product(map(self.iind,ip)) and self.diag(ip) ):
+	return self.ed
+      else:
+	return 0
+
+   def Ho(self,ip):
+      if(product(map(self.iinCd,ip)) and self.diag(ip)):
+	return self.omg * self.osc
+      else:
+	return 0
+
+   def Hall(self,spin,eden,ip):
+      return self.Ht(sip) + self.Hu(spin,eden,ip) + self.Hj(spin,eden,ip) \
+		+ self.Hd(ip) + self.Ho(ip)
 
 #---------------------------------------------------------------#
    def p2i(self,p):
@@ -124,7 +147,7 @@ class ham(object):
    def iind(self,i):
       return 1 if(self.__nc<=i and i<self.__nc+self.__nd) else 0
    def iinCd(self,i):
-      return 1 if(self.iinC(i) or self.iind(i)) else 0
+      return 1 if(0<=i and i<self.__dim) else 0
    def id2p(self,i,form='1d'):
       if not self.iind(i):
 	try: 1/0
