@@ -36,12 +36,22 @@ class graphene(honeycomb):
    def loc(self,p):
       return self.pnt(p,'xy') + self.dispm(p)
    def ddistance(self,p,q):
+      p = self.pnt(p,'2d')
+      q = self.pnt(q,'2d')
       try:
 	1/self.link(p,q)
       except:
-	print "%s and %s are not linked" % (p,q)
-	raise
-      return  norm(self.loc(p)-self.loc(q)) - self.loe
+	raise ValueError("%s and %s are not linked" % (p,q))
+      if(self.line(p,q)):
+	return norm(self.loc(p)-self.loc(q)) - self.loe
+      else:
+	if(p[1]==q[1]):
+	   if(p[0]>q[0]): p,q = (q,p)
+	   dp = array([0,-self.w/2*3])
+	else: #p[0]==q[0]
+	   if(p[1]>q[1]): p,q = (q,p)
+	   dp = array([hsqrt3*self.l,0])
+	return norm(self.loc(p)+dp-self.loc(q)) - self.loe
    def ptype1(self,p):
       if(self.inrange(p)==1):
 	p = self(p)

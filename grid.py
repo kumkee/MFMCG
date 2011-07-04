@@ -10,8 +10,8 @@ def whosdaddy():
 def myabs(x):
    return x if(x>=0) else -x
 
-erstr="ERROR: Point-index out of range -- FUNCTON: %s.%s called from %s"
-funcn="(self.__class__, whoami(), whosdaddy())"
+erstr="ERROR: Point %s out of range -- FUNCTON: %s.%s called from %s"
+funcn="(p,self.__class__, whoami(), whosdaddy())"
 
 class raw(object):
    def __init__(self,width,length):
@@ -38,8 +38,7 @@ class raw(object):
 	1/tp
 	return tp
       except:
-	print erstr % eval(funcn)
-	raise
+	raise ValueError( erstr % eval(funcn) )
    def pntind(self,p):
       return self(p)
    def __call__(self,p):

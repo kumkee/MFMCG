@@ -61,8 +61,10 @@ class ham(object):
 
    def Ht(self,ip):
       if( product(map(self.iinC,ip)) ):
-	return -self.t0 * (1.0 - self.alp*reduce(self.g.ddistance,ip))\
-				if reduce(self.g.link,ip) else 0.
+        pp = map(self.i2p,ip)
+	if( reduce(self.g.link,pp) ):
+	   return -self.t0 * (1.0 - self.alp*reduce(self.g.ddistance,pp))
+	return 0.
       else:
 	return 0.
 
@@ -81,7 +83,7 @@ class ham(object):
 
    def Hj(self,spin,eden,ip):
       tmp = 0.
-      if( not(product(map(self.iinCd,ip))):
+      if( not(product(map(self.iinCd,ip))) ):
 	return tmp
       else:
 	i = ip[0]
@@ -118,7 +120,7 @@ class ham(object):
 	return 0
 
    def Hall(self,spin,eden,ip):
-      return self.Ht(sip) + self.Hu(spin,eden,ip) + self.Hj(spin,eden,ip) \
+      return self.Ht(ip) + self.Hu(spin,eden,ip) + self.Hj(spin,eden,ip) \
 		+ self.Hd(ip) + self.Ho(ip)
 
 #---------------------------------------------------------------#

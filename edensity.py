@@ -45,7 +45,7 @@ class eden(object):
       self.__nc = self.g.nvertex()
       self.__den = zeros((2,self.__nc+self.__nd),dtype=float)
       if(vinit==None):
-	self.__V = ones(self.__nd,dtype=float)*(-1. if h.J>0 else 1.)*20.*h.U
+	self.__V = ones(self.__nd,dtype=float)*(-1. if h.J>0 else 1.)*10.*h.U
       else:
 	self.__V = ones(self.__nd,dtype=float)*vinit
       if(density==None):
