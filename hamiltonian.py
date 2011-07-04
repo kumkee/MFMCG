@@ -50,6 +50,9 @@ class ham(object):
       self.__osc -= sum(map(f,pnb))
       self.g._displace(p,d)
       self.__osc += sum(map(f,pnb))
+   def displacei(self,i,d):
+      p = self.i2p(i)
+      self.displace(p,d)
 
    def diag(self,ip):	#ip: index-pair of the matrix
       if(not reduce(lambda x,y:x==y, ip)):
@@ -111,13 +114,13 @@ class ham(object):
       if(product(map(self.iind,ip)) and self.diag(ip) ):
 	return self.ed
       else:
-	return 0
+	return 0.
 
    def Ho(self,ip):
       if(product(map(self.iinCd,ip)) and self.diag(ip)):
 	return self.omg * self.osc
       else:
-	return 0
+	return 0.
 
    def Hall(self,spin,eden,ip):
       return self.Ht(ip) + self.Hu(spin,eden,ip) + self.Hj(spin,eden,ip) \

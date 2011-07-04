@@ -13,5 +13,14 @@ print "h:", h
 print "c:", c
 b = deepcopy(c)
 b.eden = array(map(lambda x:x+(-1)**x*0.9, c.eden))
-mt = array([h.Ht([i,j]) for j in range(h.dim) for i in range(h.dim)])
-mt.shape = h.dim, h.dim
+mt = array([h.Ht([i,j]) for j in range(h.dim) for i in range(h.dim)]);mt.shape = h.dim, h.dim
+mo = array([h.Ho([i,j]) for j in range(h.dim) for i in range(h.dim)]);mo.shape = h.dim, h.dim
+h.displace(1,[.01,.01])
+mt = array([h.Ht([i,j]) for j in range(h.dim) for i in range(h.dim)]);mt.shape = h.dim, h.dim
+mo = array([h.Ho([i,j]) for j in range(h.dim) for i in range(h.dim)]);mo.shape = h.dim, h.dim
+h.displace(6,[0.,-.02])
+mt = array([h.Ht([i,j]) for j in range(h.dim) for i in range(h.dim)]);mt.shape = h.dim, h.dim
+mo = array([h.Ho([i,j]) for j in range(h.dim) for i in range(h.dim)]);mo.shape = h.dim, h.dim
+h.displace(4,[0.,.02])
+mt = array([h.Ht([i,j]) for j in range(h.dim) for i in range(h.dim)]);mt.shape = h.dim, h.dim
+mo = array([h.Ho([i,j]) for j in range(h.dim) for i in range(h.dim)]);mo.shape = h.dim, h.dim
