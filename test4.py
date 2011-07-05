@@ -34,3 +34,5 @@ mj0 = array([h.Hj(0,c,[i,j]) for j in range(h.dim) for i in range(h.dim)]);mj0.s
 mj1b = array([h.Hj(1,b,[i,j]) for j in range(h.dim) for i in range(h.dim)]);mj1b.shape = h.dim, h.dim
 mj0b = array([h.Hj(0,b,[i,j]) for j in range(h.dim) for i in range(h.dim)]);mj0b.shape = h.dim, h.dim
 mj1 = array([h.Hj(1,c,[i,j]) for j in range(h.dim) for i in range(h.dim)]);mj1.shape = h.dim, h.dim
+m0 = array([h.Hall(0,c,[i,j]) for j in range(h.dim) for i in range(h.dim)]);m0.shape = h.dim, h.dim
+

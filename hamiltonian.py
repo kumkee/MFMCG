@@ -1,6 +1,9 @@
-import graphene as grap
 from numpy import *
+from copy import deepcopy
+import graphene as grap
 from edensity import *
+from scipy.sparse import *
+from scipy import *
 
 class ham(object):
    @property
@@ -21,9 +24,11 @@ class ham(object):
    def osc(self):return self.__osc
    @property
    def dim(self):return self.__dim
+   @property
+   def lstij(self):return self.__lstij
    def __init__(self,width=6,length=10,boundary="open",holes=[],ledge=1.,
-			graphene=None, hopping=1.0,coulomb=2.0,
-			spincoupling=0.1, Ed=1.0, vibration=20.0, ssh=2.0 ):
+			graphene=None, hopping=1.0,coulomb=1.3,
+			spincoupling=0.1, Ed=1.0, vibration=40.0, ssh=3.5 ):
       if(graphene==None):
 	self.__g = grap.graphene(width,length,boundary,holes,ledge)
       else:
@@ -40,6 +45,7 @@ class ham(object):
       self.__nd = self.g.ndanglingc()
       self.__nc = self.g.nvertex()
       self.__dim = self.__nc + self.__nd
+      self.__lstij = array(map( lambda x:map(self.p2i,x), self.g.lslinks('1d') ))
  
    def lmd(self): return self.alp**2/self.t0/self.omg
    
@@ -125,6 +131,34 @@ class ham(object):
    def Hall(self,spin,eden,ip):
       return self.Ht(ip) + self.Hu(spin,eden,ip) + self.Hj(spin,eden,ip) \
 		+ self.Hd(ip) + self.Ho(ip)
+
+   def matcsr(self,spin,eden):
+      ll = len(self.lstij)
+      n = self.dim + 2*ll + self.__nd*2
+      row = zeros(n,dtype=int)
+      dat = zeros(n,dtype=float)
+
+      row[:self.dim] = xrange(self.dim)
+      col = deepcopy(row)
+      dat[:self.dim] = [self.Hall(spin,eden,[i,i]) for i in xrange(self.dim)]
+
+      row[self.dim:self.dim+ll], col[self.dim:self.dim+ll] = self.lstij.transpose()
+      col[self.dim+ll:self.dim+2*ll], row[self.dim+ll:self.dim+2*ll] = self.lstij.transpose()
+      tmp = map(lambda x:self.Hall(spin,eden,x), self.lstij)
+      dat[self.dim : self.dim+ll] = tmp
+      dat[self.dim+ll : self.dim+2*ll] = tmp
+
+      di = map(self.p2i, self.g.danglingc('1d')) #dangling vertece
+      dd = range(self.__nc,self.__dim)	   #dangling spins
+      row[self.dim + 2*ll : self.dim + 2*ll + self.__nd] = di
+      row[-self.__nd:] = dd
+      col[self.dim + 2*ll : self.dim + 2*ll + self.__nd] = dd
+      col[-self.__nd:] = di
+      tmp = [self.Hall(spin,eden,[di[i],dd[i]]) for i in xrange(self.__nd)]
+      dat[self.dim + 2*ll : self.dim + 2*ll + self.__nd] = tmp 
+      dat[-self.__nd:] = tmp
+
+      return csr_matrix( (dat,(row,col)), shape=(self.dim,self.dim) )
 
 #---------------------------------------------------------------#
    def p2i(self,p):
