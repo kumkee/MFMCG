@@ -38,6 +38,9 @@ class eden(object):
       self.__den[:,-self.__nd:] = newd
    @property
    def V(self): return self.__V
+   @V.setter
+   def V(self,newv):
+      self.__V = newv
    def __init__(self,h,density=None,vinit=None,dspin=None):
       self.__g = h.g
       self.__h = h
