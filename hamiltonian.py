@@ -144,7 +144,7 @@ class ham(object):
    def matcoo(self,spin,eden):
       #----initialization-----
       ll = len(self.lstij)
-      n = self.dim + 2*ll + self.__nd*2
+      n = self.dim + ll + self.__nd
       row = zeros(n,dtype=int)
       dat = zeros(n,dtype=float)
 
@@ -154,21 +154,23 @@ class ham(object):
       dat[:self.dim] = [self.Hall(spin,eden,[i,i]) for i in xrange(self.dim)]
 
       #----------Ht------------
-      row[self.dim:self.dim+ll], col[self.dim:self.dim+ll] = self.lstij.transpose()
-      col[self.dim+ll:self.dim+2*ll], row[self.dim+ll:self.dim+2*ll] = self.lstij.transpose()
+      col[self.dim:self.dim+ll], row[self.dim:self.dim+ll] = self.lstij.transpose()
+      #col[self.dim+ll:self.dim+2*ll], row[self.dim+ll:self.dim+2*ll] = self.lstij.transpose()
       tmp = map(self.Ht, self.lstij)
       dat[self.dim : self.dim+ll] = tmp
-      dat[self.dim+ll : self.dim+2*ll] = tmp
+      #dat[self.dim+ll : self.dim+2*ll] = tmp
 
       #----------Hjo-----------
       di = map(self.p2i, self.g.danglingc('1d')) #dangling vertece
       dd = xrange(self.__nc,self.__dim)	   #dangling spins
-      row[self.dim + 2*ll : self.dim + 2*ll + self.__nd] = di
-      row[-self.__nd:] = dd
-      col[self.dim + 2*ll : self.dim + 2*ll + self.__nd] = dd
       col[-self.__nd:] = di
+      row[-self.__nd:] = dd
+      #row[self.dim + 2*ll : self.dim + 2*ll + self.__nd] = di
+      #row[-self.__nd:] = dd
+      #col[self.dim + 2*ll : self.dim + 2*ll + self.__nd] = dd
+      #col[-self.__nd:] = di
       tmp = [self.Hall(spin,eden,[di[i],dd[i]]) for i in xrange(self.__nd)]
-      dat[self.dim + 2*ll : self.dim + 2*ll + self.__nd] = tmp 
+      #dat[self.dim + 2*ll : self.dim + 2*ll + self.__nd] = tmp 
       dat[-self.__nd:] = tmp
 
       return coo_matrix( (dat,(row,col)), shape=(self.dim,self.dim) )

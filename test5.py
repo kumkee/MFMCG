@@ -2,10 +2,11 @@ from hamiltonian import *
 from numpy import *
 from scipy.sparse import *
 from scipy import *
+from scipy.linalg import eigh
 from time import clock
 
-print 'h = ham(width=20,length=30,boundary=\'p\',holes=[[2,2]])'
-h = ham(width=50,length=90,boundary='p',holes=[[2,2]])
+#print 'h = ham(width=20,length=40,boundary=\'p\',holes=[[2,2]])'
+h = ham(width=20,length=40,boundary='p',holes=[[2,2]])
 c = eden(h)
 m = [[],[]]
 mc = [[],[]]
@@ -33,5 +34,7 @@ print 'mc[s] = h.matcoo(s,c).todense()'
 print clock()-t;t = clock() #------------------------------------------------------
 #print 'product(m[0]==mc[0]):', product(m[0]==mc[0])
 #print 'product(m[1]==mc[1]):', product(m[1]==mc[1])
-#print clock()-t #------------------------------------------------------
+w, v = eigh(mc[0])
+#print w
+print clock()-t #------------------------------------------------------
 
