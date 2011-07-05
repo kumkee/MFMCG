@@ -2,24 +2,36 @@ from hamiltonian import *
 from numpy import *
 from scipy.sparse import *
 from scipy import *
+from time import clock
 
-h = ham(width=4,length=5,boundary='p',holes=[[2,2]])
+print 'h = ham(width=20,length=30,boundary=\'p\',holes=[[2,2]])'
+h = ham(width=50,length=90,boundary='p',holes=[[2,2]])
 c = eden(h)
 m = [[],[]]
 mc = [[],[]]
-mcsr = [[],[]]
+mcoo = [[],[]]
 s = 0
-m[s] = array([ h.Hall(s,c,[i,j]) for j in xrange(h.dim) for i in xrange(h.dim) ])
-m[s].shape = h.dim,h.dim
-mcsr[s] = h.matcsr(s,c)
-mc[s] = mcsr[s].todense()
+t = clock();print t #------------------------------------------------------
+#m[s] = array([ h.Hall(s,c,[i,j]) for j in xrange(h.dim) for i in xrange(h.dim) ])
+#m[s].shape = h.dim,h.dim
+#print 'm[s] = array([ h.Hall(s,c,[i,j]) for j in xrange(h.dim) for i in xrange(h.dim) ])'
+#print clock()-t;t = clock() #------------------------------------------------------
+mcoo[s] = h.matcoo(s,c)
+print clock()-t;t = clock() #------------------------------------------------------
+mc[s] = mcoo[s].todense()
+print 'mc[s] = h.matcoo(s,c).todense()'
+print clock()-t;t = clock() #------------------------------------------------------
 s = 1
-m[s] = array([ h.Hall(s,c,[i,j]) for j in xrange(h.dim) for i in xrange(h.dim) ])
-m[s].shape = h.dim,h.dim 
-mcsr[s] = h.matcsr(s,c)
-mc[s] = mcsr[s].todense()
-print 'm[s] = array([ h.Hall(s,c,[i,j]) for j in xrange(h.dim) for i in xrange(h.dim) ])'
-print 'mc[s] = h.matcsr(s,c).todense()'
-print 'product(m[0]==mc[0]):', product(m[0]==mc[0])
-print 'product(m[1]==mc[1]):', product(m[1]==mc[1])
+#m[s] = array([ h.Hall(s,c,[i,j]) for j in xrange(h.dim) for i in xrange(h.dim) ])
+#m[s].shape = h.dim,h.dim 
+#print 'm[s] = array([ h.Hall(s,c,[i,j]) for j in xrange(h.dim) for i in xrange(h.dim) ])'
+#print clock()-t;t = clock() #------------------------------------------------------
+mcoo[s] = h.matcoo(s,c)
+print clock()-t;t = clock() #------------------------------------------------------
+mc[s] = mcoo[s].todense()
+print 'mc[s] = h.matcoo(s,c).todense()'
+print clock()-t;t = clock() #------------------------------------------------------
+#print 'product(m[0]==mc[0]):', product(m[0]==mc[0])
+#print 'product(m[1]==mc[1]):', product(m[1]==mc[1])
+#print clock()-t #------------------------------------------------------
 

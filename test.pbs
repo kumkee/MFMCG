@@ -1,14 +1,14 @@
 #!/bin/bash
 
-#PBS -N drawingtest
-###PBS -o test.log
-###PBS -e test.err
+#PBS -N test5_2
+#PBS -o ./log/test5_2.log
+#PBS -e ./log/test5_2.err
 #PBS -l nodes=1:ppn=1
 #PBS -l walltime=24:00:00
 #PBS -q batch
 
 date
 source $HOME/.bashrc
-$HOME/workspace/MFMCG/test.py
+python $HOME/workspace/MFMCG/test5.py
 date
 

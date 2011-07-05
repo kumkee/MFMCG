@@ -5,6 +5,9 @@ from edensity import *
 from scipy.sparse import *
 from scipy import *
 
+def redand(bl):
+   return reduce(lambda x,y:x and y, bl)
+
 class ham(object):
    @property
    def t0(self):return self.__t0
@@ -63,13 +66,13 @@ class ham(object):
    def diag(self,ip):	#ip: index-pair of the matrix
       if(not reduce(lambda x,y:x==y, ip)):
 	return 0
-      elif(product(map(self.iinCd,ip))==1):
+      elif(redand(map(self.iinCd,ip))):
         return 1
       else:
 	return 0
 
    def Ht(self,ip):
-      if( product(map(self.iinC,ip)) ):
+      if( redand(map(self.iinC,ip)) ):
         pp = map(self.i2p,ip)
 	if( reduce(self.g.link,pp) ):
 	   return -self.t0 * (1.0 - self.alp*reduce(self.g.ddistance,pp))
@@ -78,7 +81,7 @@ class ham(object):
 	return 0.
 
    def Hu(self,spin,eden,ip):
-      if(not product(map(self.iinCd,ip))):
+      if(not redand(map(self.iinCd,ip))):
 	return 0
       elif(self.diag(ip)):
 	i = ip[0]
@@ -92,13 +95,13 @@ class ham(object):
 
    def Hj(self,spin,eden,ip):
       tmp = 0.
-      if( not(product(map(self.iinCd,ip))) ):
+      if( not(reduce(lambda x,y:x and y, (map(self.iinCd,ip))) )):
 	return tmp
       else:
 	i = ip[0]
 	j = ip[1]
 	di = map(self.p2i, self.g.danglingc('1d')) #dangling vertece
-	dd = range(self.__nc,self.__dim)	   #dangling spins
+	dd = xrange(self.__nc,self.__dim)	   #dangling spins
 	if(self.diag(ip)):
 	   tmp += dot( map(eden.spin, di), map(eden.spin, dd) )  # <S><S> term
 	   tmp -= sum(map(lambda x:x**2, eden.V)) /2.		 # V^2 term
@@ -117,13 +120,13 @@ class ham(object):
         return self.J * tmp
 
    def Hd(self,ip):
-      if(product(map(self.iind,ip)) and self.diag(ip) ):
+      if(redand(map(self.iind,ip)) and self.diag(ip) ):
 	return self.ed
       else:
 	return 0.
 
    def Ho(self,ip):
-      if(product(map(self.iinCd,ip)) and self.diag(ip)):
+      if(redand(map(self.iinCd,ip)) and self.diag(ip)):
 	return self.omg * self.osc
       else:
 	return 0.
@@ -133,23 +136,33 @@ class ham(object):
 		+ self.Hd(ip) + self.Ho(ip)
 
    def matcsr(self,spin,eden):
+      return self.matcoo(spin,eden).tocsr()
+
+   def mat(self,spin,eden):
+      return self.matcoo(spin,eden).todense()
+
+   def matcoo(self,spin,eden):
+      #----initialization-----
       ll = len(self.lstij)
       n = self.dim + 2*ll + self.__nd*2
       row = zeros(n,dtype=int)
       dat = zeros(n,dtype=float)
 
+      #---------Hdia-----------
       row[:self.dim] = xrange(self.dim)
       col = deepcopy(row)
       dat[:self.dim] = [self.Hall(spin,eden,[i,i]) for i in xrange(self.dim)]
 
+      #----------Ht------------
       row[self.dim:self.dim+ll], col[self.dim:self.dim+ll] = self.lstij.transpose()
       col[self.dim+ll:self.dim+2*ll], row[self.dim+ll:self.dim+2*ll] = self.lstij.transpose()
-      tmp = map(lambda x:self.Hall(spin,eden,x), self.lstij)
+      tmp = map(self.Ht, self.lstij)
       dat[self.dim : self.dim+ll] = tmp
       dat[self.dim+ll : self.dim+2*ll] = tmp
 
+      #----------Hjo-----------
       di = map(self.p2i, self.g.danglingc('1d')) #dangling vertece
-      dd = range(self.__nc,self.__dim)	   #dangling spins
+      dd = xrange(self.__nc,self.__dim)	   #dangling spins
       row[self.dim + 2*ll : self.dim + 2*ll + self.__nd] = di
       row[-self.__nd:] = dd
       col[self.dim + 2*ll : self.dim + 2*ll + self.__nd] = dd
@@ -158,7 +171,7 @@ class ham(object):
       dat[self.dim + 2*ll : self.dim + 2*ll + self.__nd] = tmp 
       dat[-self.__nd:] = tmp
 
-      return csr_matrix( (dat,(row,col)), shape=(self.dim,self.dim) )
+      return coo_matrix( (dat,(row,col)), shape=(self.dim,self.dim) )
 
 #---------------------------------------------------------------#
    def p2i(self,p):
