@@ -161,17 +161,18 @@ class ham(object):
       #dat[self.dim+ll : self.dim+2*ll] = tmp
 
       #----------Hjo-----------
-      di = map(self.p2i, self.g.danglingc('1d')) #dangling vertece
-      dd = xrange(self.__nc,self.__dim)	   #dangling spins
-      col[-self.__nd:] = di
-      row[-self.__nd:] = dd
-      #row[self.dim + 2*ll : self.dim + 2*ll + self.__nd] = di
-      #row[-self.__nd:] = dd
-      #col[self.dim + 2*ll : self.dim + 2*ll + self.__nd] = dd
-      #col[-self.__nd:] = di
-      tmp = [self.Hall(spin,eden,[di[i],dd[i]]) for i in xrange(self.__nd)]
-      #dat[self.dim + 2*ll : self.dim + 2*ll + self.__nd] = tmp 
-      dat[-self.__nd:] = tmp
+      if(self.__nd!=0):
+	di = map(self.p2i, self.g.danglingc('1d')) #dangling vertece
+	dd = xrange(self.__nc,self.__dim)	   #dangling spins
+	col[-self.__nd:] = di
+	row[-self.__nd:] = dd
+	#row[self.dim + 2*ll : self.dim + 2*ll + self.__nd] = di
+	#row[-self.__nd:] = dd
+	#col[self.dim + 2*ll : self.dim + 2*ll + self.__nd] = dd
+	#col[-self.__nd:] = di
+	tmp = [self.Hall(spin,eden,[di[i],dd[i]]) for i in xrange(self.__nd)]
+	#dat[self.dim + 2*ll : self.dim + 2*ll + self.__nd] = tmp 
+	dat[-self.__nd:] = tmp
 
       return coo_matrix( (dat,(row,col)), shape=(self.dim,self.dim) )
 
@@ -184,9 +185,12 @@ class ham(object):
       else:
 	return p - len(filter(lambda x:x<p,h))
    def i2p(self,i,form='1d'):
+      
       h = self.g.holes('1d')
       lenh = self.g.nholes()
-      if(h[0]>i):
+      if(self.g.holes('1d')==[]):
+	p = i
+      elif(h[0]>i):
 	p = i
       elif(h[-1]-lenh<i):
 	p = i+lenh

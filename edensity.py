@@ -32,10 +32,15 @@ class eden(object):
    def eden(self,newd):
       self.__den[:,:self.__nc] = newd
    @property
-   def dden(self): return self.__den[:,-self.__nd:]
+   def dden(self):
+      if(self.__nd!=0):
+	return self.__den[:,-self.__nd:]
+      else:
+	return []
    @dden.setter
    def dden(self,newd):
-      self.__den[:,-self.__nd:] = newd
+      if(self.__nd!=0):
+	self.__den[:,-self.__nd:] = newd
    @property
    def V(self): return self.__V
    @V.setter
@@ -57,12 +62,13 @@ class eden(object):
 	   self.den[:,i] = [sl, flip(sl)]
       else:
 	self.eden = density
-      if(dspin==None):
-	self.dden[1,:] = 1
-      else:
-	sf = map(flip,density)
-	for i in xrange(self.__nd):
-	   self.dden[:,i] = [flip(sf[i]),sf[i]]
+      if(self.__nd!=0):
+	if(dspin==None):
+	   self.dden[1,:] = 1
+	else:
+	   sf = map(flip,density)
+	   for i in xrange(self.__nd):
+	      self.dden[:,i] = [flip(sf[i]),sf[i]]
    def spin(self,i):
       return reduce(spinud, self.den[:,i])#(self.den[1,i] - self.den[0,i]) /2.
    def Vi(self,i):
