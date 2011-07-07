@@ -1,5 +1,6 @@
 from mfiter import *
 
+#h = ham(holes=[[3,5]])
 h = ham()
 c = eden(h)
-n, V = mfiter(h,c)
+n = meanfield(h,c)
