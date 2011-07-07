@@ -27,10 +27,13 @@ def mindiff(c,d):
 
 def meanfield(h,c,tol=1e-8):
    d = 1.
+   i = 0
    while(d>=tol):
       n = mfiter(h,c)
       d = mindiff(n,c)
       c = deepcopy(n)
+      i += 1
+      print i, d
    return n
 
 def mfiter(hamiltonian,eden,temp=RT,mu0=None):

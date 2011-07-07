@@ -64,7 +64,7 @@ class eden(object):
 	self.eden = density
       if(self.__nd!=0):
 	if(dspin==None):
-	   self.dden[1,:] = 1
+	   self.dden[1,:] = 1.
 	else:
 	   sf = map(flip,density)
 	   for i in xrange(self.__nd):

@@ -19,6 +19,9 @@ class ham(object):
    def J(self): return self.__J
    @property
    def ed(self):return self.__ed
+   @ed.setter
+   def ed(self,newed):
+      self.__ed = newed
    @property
    def omg(self):return self.__omg
    @property

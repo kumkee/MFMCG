@@ -4,7 +4,8 @@ from edensity import *
 from scipy.linalg import *
 from scipy.optimize import newton
 from mfiter import *
-h = ham()
+#h = ham()
+h = ham(width=4,length=5,holes=[[1,2]])
 c = eden(h)
 T = RT
 N = map(sum,c.den)
@@ -20,10 +21,10 @@ def chempot(N,energy,temp,mu0):
    return newton(eqfermi,mu0,args=(N,energy,temp))
 
 mu = [[],[]]
-mu[0] = chempot(N[0],w[0],T,w[0][33])
+mu[0] = chempot(N[0],w[0],T,w[0][N[0]])
 mu[1] = chempot(N[1],w[1],T,mu[0])
-print mu
-print map(lambda s:eqfermi(mu[s],N[s],w[s]), [0,1])
-n = mat(map(lambda s: map(lambda i:sum(fermi(w[s][:],mu[s],T)*d[s][:,i]),
-						xrange(h.dim)), xrange(2)))
-c.den = n
+#print mu
+#print map(lambda s:eqfermi(mu[s],N[s],w[s]), [0,1])
+#n = mat(map(lambda s: map(lambda i:sum(fermi(w[s][:],mu[s],T)*d[s][:,i]),
+#						xrange(h.dim)), xrange(2)))
+#c.den = n
