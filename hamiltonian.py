@@ -50,7 +50,7 @@ class ham(object):
 						self.g.lslinks('1d')))
       self.__nd = self.g.ndanglingc()
       self.__nc = self.g.nvertex()
-      self.__dim = self.__nc + self.__nd
+      self.__dim = self.__nc# + self.__nd
       self.__lstij = array(map( lambda x:map(self.p2i,x), self.g.lslinks('1d') ))
  
    def lmd(self): return self.alp**2/self.t0/self.omg
@@ -69,7 +69,7 @@ class ham(object):
    def diag(self,ip):	#ip: index-pair of the matrix
       if(not reduce(lambda x,y:x==y, ip)):
 	return 0
-      elif(redand(map(self.iinCd,ip))):
+      elif(redand(map(self.iinC,ip))):
         return 1
       else:
 	return 0
@@ -84,7 +84,7 @@ class ham(object):
 	return 0.
 
    def Hu(self,spin,eden,ip):
-      if(not redand(map(self.iinCd,ip))):
+      if(not redand(map(self.iinC,ip))):
 	return 0
       elif(self.diag(ip)):
 	i = ip[0]
@@ -98,28 +98,28 @@ class ham(object):
 
    def Hj(self,spin,eden,ip):
       tmp = 0.
-      if( not(reduce(lambda x,y:x and y, (map(self.iinCd,ip))) )):
+      if( not(redand(map(self.iinC,ip)) )):
 	return tmp
       else:
 	i = ip[0]
 	j = ip[1]
-	di = map(self.p2i, self.g.danglingc('1d')) #dangling vertece
-	dd = xrange(self.__nc,self.__dim)	   #dangling spins
+	di = map(self.p2i, self.g.danglingc('1d'))	#dangling vertece
+	dd = xrange(self.__nc,self.__dim+self.__nd)	#dangling spins
 	if(self.diag(ip)):
 	   tmp += dot( map(eden.spin, di), map(eden.spin, dd) )  # <S><S> term
-	   tmp -= sum(map(lambda x:x**2, eden.V)) /2.		 # V^2 term
-	   spin = 1 if spin else 0
+	   #tmp -= sum(map(lambda x:x**2, eden.V)) /2.		 # V^2 term
+	   spin = 1 if spin else 0 		# make sure spin is 1 or 0
 	   if(i in di):
-	      tmp -= (-1)**(spin+1) * eden.spin(self.i2id(i))/2. # <S>Sd terms
-	   if(i in dd):
-	      tmp -= (-1)**(spin+1) * eden.spin(self.id2i(i))/2. # <Sd>S terms
-	else:
+	      tmp -= (-1)**(spin+1)/2. * eden.spin(self.i2id(i)) # <S>Sd terms
+	   #if(i in dd):
+	   #   tmp -= (-1)**(spin+1) * eden.spin(self.id2i(i))/2. # <Sd>S terms
+	'''else:
 	   if(i in di):
 	      if(self.i2id(i)==j):
 		tmp -= eden.V[j-self.__nc]/2.
 	   elif(i in dd):
 	      if(self.id2i(i)==j):
-		tmp -= eden.V[i-self.__nc]/2.
+		tmp -= eden.V[i-self.__nc]/2.'''
         return self.J * tmp
 
    def Hd(self,ip):
@@ -129,14 +129,14 @@ class ham(object):
 	return 0.
 
    def Ho(self,ip):
-      if(redand(map(self.iinCd,ip)) and self.diag(ip)):
+      if(redand(map(self.iinC,ip)) and self.diag(ip)):
 	return self.omg * self.osc
       else:
 	return 0.
 
    def Hall(self,spin,eden,ip):
       return self.Ht(ip) + self.Hu(spin,eden,ip) + self.Hj(spin,eden,ip) \
-		+ self.Hd(ip) + self.Ho(ip)
+		+ self.Ho(ip)# + self.Hd(ip) 
 
    def matcsr(self,spin,eden):
       return self.matcoo(spin,eden).tocsr()
@@ -147,7 +147,7 @@ class ham(object):
    def matcoo(self,spin,eden):
       #----initialization-----
       ll = len(self.lstij)
-      n = self.dim + ll + self.__nd
+      n = self.dim + ll# + self.__nd
       row = zeros(n,dtype=int)
       dat = zeros(n,dtype=float)
 
@@ -164,6 +164,7 @@ class ham(object):
       #dat[self.dim+ll : self.dim+2*ll] = tmp
 
       #----------Hjo-----------
+      '''
       if(self.__nd!=0):
 	di = map(self.p2i, self.g.danglingc('1d')) #dangling vertece
 	dd = xrange(self.__nc,self.__dim)	   #dangling spins
@@ -176,6 +177,7 @@ class ham(object):
 	tmp = [self.Hall(spin,eden,[di[i],dd[i]]) for i in xrange(self.__nd)]
 	#dat[self.dim + 2*ll : self.dim + 2*ll + self.__nd] = tmp 
 	dat[-self.__nd:] = tmp
+      '''
 
       return coo_matrix( (dat,(row,col)), shape=(self.dim,self.dim) )
 
