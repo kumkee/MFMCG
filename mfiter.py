@@ -1,6 +1,7 @@
 from hamiltonian import *
 from scipy.linalg import *
-from scipy.optimize import brentq#newton, fsolve
+from scipy.optimize import brentq
+import time
 
 RT = 1.034e-2
 
@@ -23,48 +24,54 @@ def eqfermi(mu,N,w,T):
    return N - sum( vfermi(w,mu,T) )
 
 def maxdiff(c,d):
-   r = max(map(max, abs(c.eden-d.eden)))
-   #if(c.V!=[]):
-   #   t = min(abs(c.V-d.V))
-   #   r = min(r,t)
-   return r
+   if(c==None or d==None):
+      return 1.
+   else:
+      r = max(map(max, abs(c.eden-d.eden)))
+      return r
 
-def meanfield(h,c,tol=1e-7):
-   d = 1.
-   i = 0
-   while(d>=tol):
-      n, mu0 = mfiter(h,c)
-      d = maxdiff(n,c)
-      c = deepcopy(n)
-      i += 1
-      print i, d
+def meanfield(h,tol=1e-7):
+   n = None
+   for n in mfiter(h):
+      pass
    return n
 
-def mfiter(hamiltonian,eden,temp=RT,mu0=None):
+def mfiter(hamiltonian,den=None,temp=RT,mu0=None,tol=1e-7):
+   from IPython.kernel import client
+   tc = client.TaskClient()
+   dif = 1.
+   i = 0
    h = hamiltonian
-   c = eden
+   c = eden(h) if den==None else deepcopy(den)
+   n = None
    T = temp
    N = map(sum,c.eden)
-   n = deepcopy(c)
    w, v = [[],[]], [[],[]]
 
-   m = map(lambda s: h.mat(s,c), [0,1])
-   #mat only contains the upper triangle part of the matrix
-   (w[0],v[0]), (w[1],v[1]) = map(eigh, m)
-   #w[s][j]: eigenergies for single-particle state j with spin s
-   #v[s][:,j]: the coresponding eigenstate j,s
-   d = map(lambda s:array(map(lambda x:x**2, v[s].T)), [0,1])
-   #d[s][j,i]: density distribution of state j,s at site i
+   while(dif>=tol):
+      t=time.time() #######
+      m = tc.map(lambda s: h.mat(s,c), [0,1])
+      #mat only contains the upper triangle part of the matrix
+      print 'mat time:',time.time()-t;t=time.time() #######
+      (w[0],v[0]), (w[1],v[1]) = map(eigh, m)
+      print 'sol time:', time.time()-t;t=time.time() #######
+      #w[s][j]: eigenergies for single-particle state j with spin s
+      #v[s][:,j]: the coresponding eigenstate j,s
+      d = map(lambda s:array(map(lambda x:x**2, v[s].T)), [0,1])
+      print 'djs time:', time.time()-t;t=time.time() #######
+      #d[s][j,i]: density distribution of state j,s at site i
 
-   mu = map(lambda s: chempot(N[s],w[s],T), [0,1])
+      mu = map(lambda s: chempot(N[s],w[s],T), [0,1])
+      print 'mu0 time:', time.time()-t;t=time.time() #######
 
-   n.eden = array(map(lambda s: map(lambda i:sum(fermi(w[s][:],mu[s],T)*d[s][:,i]),
+      c.eden = array(map(lambda s: map(lambda i:sum(fermi(w[s][:],mu[s],T)*d[s][:,i]),
 						xrange(h.dim)), xrange(2)))
-   
-   '''if(h.g.ndvertex()!=0):
-      V = [ sum([ -fermi(w[s][j],mu[s],T) * v[s][i,j] * v[s][h.id2i(i),j] 
-		for j in xrange(h.dim) for s in xrange(2) ])
-			for i in xrange(h.g.nvertex(),h.dim) ]
-      n.V = array(V)'''
+      
+      print 'cpy time:', time.time()-t;t=time.time() #######
+      yield c
 
-   return n, mu
+      dif = maxdiff(n,c)
+      print i, dif
+      n = deepcopy(c)
+      i += 1
+      print 'fin time:', time.time()-t;t=time.time() #######
