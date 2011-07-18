@@ -37,8 +37,6 @@ def meanfield(h,tol=1e-7):
    return n
 
 def mfiter(hamiltonian,den=None,temp=RT,mu0=None,tol=1e-7):
-   from IPython.kernel import client
-   tc = client.TaskClient()
    dif = 1.
    i = 0
    h = hamiltonian
@@ -49,29 +47,22 @@ def mfiter(hamiltonian,den=None,temp=RT,mu0=None,tol=1e-7):
    w, v = [[],[]], [[],[]]
 
    while(dif>=tol):
-      t=time.time() #######
-      m = tc.map(lambda s: h.mat(s,c), [0,1])
+      m = map(lambda s: h.mat(s,c), [0,1])
       #mat only contains the upper triangle part of the matrix
-      print 'mat time:',time.time()-t;t=time.time() #######
       (w[0],v[0]), (w[1],v[1]) = map(eigh, m)
-      print 'sol time:', time.time()-t;t=time.time() #######
       #w[s][j]: eigenergies for single-particle state j with spin s
       #v[s][:,j]: the coresponding eigenstate j,s
       d = map(lambda s:array(map(lambda x:x**2, v[s].T)), [0,1])
-      print 'djs time:', time.time()-t;t=time.time() #######
       #d[s][j,i]: density distribution of state j,s at site i
 
       mu = map(lambda s: chempot(N[s],w[s],T), [0,1])
-      print 'mu0 time:', time.time()-t;t=time.time() #######
 
       c.eden = array(map(lambda s: map(lambda i:sum(fermi(w[s][:],mu[s],T)*d[s][:,i]),
 						xrange(h.dim)), xrange(2)))
       
-      print 'cpy time:', time.time()-t;t=time.time() #######
       yield c
 
       dif = maxdiff(n,c)
-      print i, dif
+      print i, dif #####
       n = deepcopy(c)
       i += 1
-      print 'fin time:', time.time()-t;t=time.time() #######
