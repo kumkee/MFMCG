@@ -1,6 +1,6 @@
 from hamiltonian import *
 from scipy.linalg import *
-from scipy.optimize import newton, fsolve
+from scipy.optimize import brentq#newton, fsolve
 
 RT = 1.034e-2
 
@@ -10,15 +10,19 @@ def fermi(energy,chempot,temp=RT):
 
 vfermi = vectorize(fermi)
 
-
-def chempot(N,energy,temp,mu0):
-   return fsolve(eqfermi,mu0,args=(N,energy,temp))
-
+def chempot(N,levels,temp):
+   def f(x):
+      return eqfermi(x,N,levels,temp)
+   w0, wn = levels[0], levels[-1]
+   if(wn<w0): w0, wn = wn, w0
+   while(f(wn)*f(w0)>0):
+      w0, wn = w0-(wn-w0), wn+(wn-w0)
+   return brentq(eqfermi,w0,wn,args=(N,levels,temp))
 
 def eqfermi(mu,N,w,T):
    return N - sum( vfermi(w,mu,T) )
 
-def mindiff(c,d):
+def maxdiff(c,d):
    r = max(map(max, abs(c.eden-d.eden)))
    #if(c.V!=[]):
    #   t = min(abs(c.V-d.V))
@@ -30,7 +34,7 @@ def meanfield(h,c,tol=1e-7):
    i = 0
    while(d>=tol):
       n, mu0 = mfiter(h,c)
-      d = mindiff(n,c)
+      d = maxdiff(n,c)
       c = deepcopy(n)
       i += 1
       print i, d
@@ -42,9 +46,8 @@ def mfiter(hamiltonian,eden,temp=RT,mu0=None):
    T = temp
    N = map(sum,c.eden)
    n = deepcopy(c)
-   w, v, mu = [[],[]], [[],[]], [[], []]
+   w, v = [[],[]], [[],[]]
 
-   print "db1: -------"#########
    m = map(lambda s: h.mat(s,c), [0,1])
    #mat only contains the upper triangle part of the matrix
    (w[0],v[0]), (w[1],v[1]) = map(eigh, m)
@@ -53,16 +56,8 @@ def mfiter(hamiltonian,eden,temp=RT,mu0=None):
    d = map(lambda s:array(map(lambda x:x**2, v[s].T)), [0,1])
    #d[s][j,i]: density distribution of state j,s at site i
 
-   print "db2: -------"#########
-   if(mu0==None):
-      mu0 = w[0][N[0]]
-      mu[0] = chempot(N[0],w[0],T,mu0)
-      mu[1] = chempot(N[1],w[1],T,mu[0]) 
-   else:
-      mu[0] = chempot(N[0],w[0],T,mu0[0])
-      mu[1] = chempot(N[1],w[1],T,mu0[0]) 
+   mu = map(lambda s: chempot(N[s],w[s],T), [0,1])
 
-   print "db3: -------"#########
    n.eden = array(map(lambda s: map(lambda i:sum(fermi(w[s][:],mu[s],T)*d[s][:,i]),
 						xrange(h.dim)), xrange(2)))
    
@@ -71,6 +66,5 @@ def mfiter(hamiltonian,eden,temp=RT,mu0=None):
 		for j in xrange(h.dim) for s in xrange(2) ])
 			for i in xrange(h.g.nvertex(),h.dim) ]
       n.V = array(V)'''
-   print mu #################
 
    return n, mu

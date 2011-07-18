@@ -16,3 +16,11 @@ n = meanfield(h,c)
 #m0 = h.mat(0,c)
 #m1 = h.mat(1,c)
 #m0 = mat([h.Hall(0,c,[i,j]) for i in xrange(h.dim) for j in xrange(h.dim)])
+
+
+'''T = RT
+N = map(sum,c.eden)
+w, v, mu = [[],[]], [[],[]], [[], []]
+m = map(lambda s: h.mat(s,c), [0,1])
+(w[0],v[0]), (w[1],v[1]) = map(eigh, m)'''
+
