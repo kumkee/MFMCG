@@ -1,6 +1,8 @@
 from numpy import array
 from numpy.random.mtrand import RandomState
 from mfiter import RT, mfiter
+from copy import deepcopy
+from math import exp
 
 dfseed = 31415927
 
@@ -23,7 +25,7 @@ class myrand(object):
 def mcmove(h0,T=RT,den=None,cutoff=0.2,tol=1.e-7):
    count = 0 
    accept = True
-   disp = None
+   disp = (0,[0,0])
    r = myrand(h0,cutoff,seed=h0.g.size(1)+h0.g.holes())
 
    n0, en0 = mfiter(h0,den=den,temp=T,tol=tol)
@@ -31,16 +33,18 @@ def mcmove(h0,T=RT,den=None,cutoff=0.2,tol=1.e-7):
    while(True):
       yield disp, n0, en0, accept
       count += 1
+
       h1 = deepcopy(h0)
       disp = (r.site.next(),r.dxy.next())
       h1.displacei(disp[0],disp[1])
       n1, en1 = mfiter(h1,den=n0,temp=T,tol=tol)
       accept = (r.acc.next() < exp(-(en1-en0)/T))
+
       if(accept):
 	h0 = deepcopy(h1)
-	en0.eden = en1.eden
-      else:
-	disp = None
+	n0.eden = n1.eden
+      #else:
+	#disp = None
 
 
 def randxy(seed,cutoff=1.0):

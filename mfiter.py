@@ -66,7 +66,7 @@ def mfiter(hamiltonian,den=None,temp=RT,mu0=None,tol=1e-7):
       #yield c
 
       dif = maxdiff(n,c)
-      print counter, dif #####
+      #print counter, dif #####
       n.eden = c.eden
       counter += 1
 
