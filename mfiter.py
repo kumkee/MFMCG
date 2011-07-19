@@ -47,7 +47,7 @@ def mfiter(hamiltonian,den=None,temp=RT,mu0=None,tol=1e-7):
    w, v = [[],[]], [[],[]]
 
    while(dif>=tol):
-      m = map(lambda s: h.mat(s,c), [0,1])
+      m = [h.mat(s,c) for s in [0,1]]
       #mat only contains the upper triangle part of the matrix
       (w[0],v[0]), (w[1],v[1]) = map(eigh, m)
       #w[s][j]: eigenergies for single-particle state j with spin s
