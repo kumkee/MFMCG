@@ -21,7 +21,7 @@ def chempot(N,levels,temp):
    return brentq(eqfermi,w0,wn,args=(N,levels,temp))
 
 def eqfermi(mu,N,w,T):
-   return N - sum( vfermi(w,mu,T) )
+   return N - sum( fermi(w,mu,T) )
 
 def maxdiff(c,d):
    if(c==None or d==None):
@@ -30,18 +30,18 @@ def maxdiff(c,d):
       r = max(map(max, abs(c.eden-d.eden)))
       return r
 
-def meanfield(h,tol=1e-7):
-   n = None
-   for n in mfiter(h):
-      pass
-   return n
+#def meanfield(h,tol=1e-7):
+#   n = None
+#   for n in mfiter(h):
+#      pass
+#   return n
 
 def mfiter(hamiltonian,den=None,temp=RT,mu0=None,tol=1e-7):
    dif = 1.
-   i = 0
+   counter = 0
    h = hamiltonian
    c = eden(h) if den==None else deepcopy(den)
-   n = None
+   n = deepcopy(c)
    T = temp
    N = map(sum,c.eden)
    w, v = [[],[]], [[],[]]
@@ -52,17 +52,24 @@ def mfiter(hamiltonian,den=None,temp=RT,mu0=None,tol=1e-7):
       (w[0],v[0]), (w[1],v[1]) = map(eigh, m)
       #w[s][j]: eigenergies for single-particle state j with spin s
       #v[s][:,j]: the coresponding eigenstate j,s
-      d = map(lambda s:array(map(lambda x:x**2, v[s].T)), [0,1])
+      d = array([map(lambda x:x**2, v[s].T) for s in [0,1]])
       #d[s][j,i]: density distribution of state j,s at site i
 
-      mu = map(lambda s: chempot(N[s],w[s],T), [0,1])
+      mu = [chempot(N[s],w[s],T) for s in [0,1]]
 
-      c.eden = array(map(lambda s: map(lambda i:sum(fermi(w[s][:],mu[s],T)*d[s][:,i]),
-						xrange(h.dim)), xrange(2)))
-      
-      yield c
+      #c.eden = array(map(lambda s: map(lambda i:sum(fermi(w[s],mu[s],T)*d[s][:,i]),
+	#					xrange(h.dim)), xrange(2)))
+      c.eden = array( [ [sum(fermi(w[s],mu[s],T)*d[s][:,i])
+					for i in xrange(h.dim)]
+					for s in [0,1] ] )
+      #
+      #yield c
 
       dif = maxdiff(n,c)
-      print i, dif #####
-      n = deepcopy(c)
-      i += 1
+      print counter, dif #####
+      n.eden = c.eden
+      counter += 1
+
+   etot = sum( [fermi(w[s],mu[s],T)*w[s] for s in [0,1]] )
+
+   return c, etot

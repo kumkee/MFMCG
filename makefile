@@ -3,7 +3,7 @@ pdf:
 	rm -f hamiltonian-all.{aux,log}
 
 profile:
-	python -m cProfile -s time -o profmf.log profmf.py
+	python -m cProfile -s time profmf.py > profmf.log
 
 all:
 	pdf
