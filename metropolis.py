@@ -5,12 +5,12 @@ dc = 0.003
 
 def metropolis(h,cutoff=dc):
    mc = mcmove(h,cutoff=cutoff)
-   count = 0
-   Sd = zeros((h.dim,2),dtype=float)
-   Sn = zeros((2,h.dim),dtype=float)
-   Sen = 0
    Ssize = h.dim * 10
    while(True):
+      count = 0
+      Sd = zeros((h.dim,2),dtype=float)
+      Sn = zeros((2,h.dim),dtype=float)
+      Sen = 0
       for i in xrange(Ssize):
 	d, n, en, a = mc.next()
 	if(a):
