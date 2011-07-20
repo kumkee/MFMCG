@@ -1,14 +1,14 @@
 #!/bin/bash
 
-#PBS -N test9_1_h
+#PBS -N test9_pro_h
 #PBS -o ./log/$PBS_JOBNAME.log
 #PBS -e ./log/$PBS_JOBNAME.err
 #PBS -l nodes=1:ppn=2
-#PBS -l walltime=24:00:00
+#PBS -l walltime=124:00:00
 #PBS -q batch
 
 jobcmd="`echo $PBS_JOBNAME | awk -F '_' '{print $1}'`".py
 date
 source $HOME/.bashrc
-python $HOME/workspace/MFMCG/$jobcmd
+python -m cProfile -o prometrp.log $HOME/workspace/MFMCG/$jobcmd
 date
