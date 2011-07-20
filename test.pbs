@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #PBS -N test8_3
-#PBS -o ./log/test8_3.log
-#PBS -e ./log/test8_3.err
-#PBS -l nodes=1:ppn=1
+#PBS -o ./log/$PBS_JOBNAME.log
+#PBS -e ./log/$PBS_JOBNAME.err
+#PBS -l nodes=1:ppn=2
 #PBS -l walltime=24:00:00
 #PBS -q batch
 

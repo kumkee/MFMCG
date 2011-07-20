@@ -43,6 +43,7 @@ def mcmove(h0,T=RT,den=None,cutoff=0.2,tol=1.e-7):
       if(accept):
 	h0 = deepcopy(h1)
 	n0.eden = n1.eden
+        en0 = en1
       #else:
 	#disp = None
 
