@@ -1,5 +1,7 @@
-profmflog=profmf.log
+profmflog=profiles/profmf.log
 profmfpy=profmf.py
+profmetrpl=profiles/profmetrp.log
+profmetrpp=profmetrp.py
 
 
 pdf:
@@ -7,14 +9,19 @@ pdf:
 	rm -f hamiltonian-all.{aux,log}
 
 saveprofile:
-	if [ -e $(profmflog) ]
-	then
-	   mv $(profmflog).1 $(profmflog).2
-	   mv $(profmflog) $(profmflog).1
-	fi
+	mv $(profmflog).1 $(profmflog).2
+	mv $(profmflog) $(profmflog).1
 
 profile:
 	python -m cProfile -s time $(profmfpy) > $(profmflog)
+
+
+saveprofilemtp:
+	mv $(profmetrpl).1 $(profmetrpl).2
+	mv $(profmetrpl) $(profmetrpl).1
+
+profilemtp:
+	qsub profile.pbs
 
 all:
 	pdf

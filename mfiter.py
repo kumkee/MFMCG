@@ -1,7 +1,15 @@
+#from IPython.kernel import client
+#from IPython.kernel.task import MapTask
 from hamiltonian import *
 from scipy.linalg import *
 from scipy.optimize import brentq
+#from Queue import Queue
+#from threading import Thread
 import time
+
+#def tfunc(f,q,x):
+#   q.put(f(x))
+#tc = client.TaskClient()
 
 RT = 1.034e-2
 
@@ -9,7 +17,7 @@ RT = 1.034e-2
 def fermi(energy,chempot,temp=RT):
    return 1./( exp((energy-chempot)/temp) + 1. )
 
-vfermi = vectorize(fermi)
+#vfermi = vectorize(fermi)
 
 def chempot(N,levels,temp):
    def f(x):
@@ -50,6 +58,16 @@ def mfiter(hamiltonian,den=None,temp=RT,mu0=None,tol=1e-7):
       m = [h.mat(s,c) for s in [0,1]]
       #mat only contains the upper triangle part of the matrix
       (w[0],v[0]), (w[1],v[1]) = map(eigh, m)
+      '''a threading attempt
+      q0 = Queue() 
+      q1 = Queue() 
+      t0 = Thread(target=tfunc,args=(eigh,q0,m[0]))
+      t1 = Thread(target=tfunc,args=(eigh,q1,m[1]))
+      t0.start(); t1.start()
+      t0.join(); t1.join()
+      w[0], v[0] = q0.get()
+      w[1], v[1] = q1.get()
+      '''
       #w[s][j]: eigenergies for single-particle state j with spin s
       #v[s][:,j]: the coresponding eigenstate j,s
       d = array([map(lambda x:x**2, v[s].T) for s in [0,1]])

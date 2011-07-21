@@ -1,16 +1,16 @@
 #!/bin/bash
 
-#PBS -N test9_pro1_h
+#PBS -N test9_pro2_h
 #PBS -o ./log/$PBS_JOBNAME.log
 #PBS -e ./log/$PBS_JOBNAME.err
-#PBS -l nodes=1:ppn=2
+#PBS -l nodes=1:ppn=12
 #PBS -l walltime=124:00:00
 #PBS -q batch
 
 workdir=$HOME/workspace/MFMCG/
 jobcmd=$workdir/"`echo $PBS_JOBNAME | awk -F '_' '{print $1}'`".py
-binlog=$workdir/profmetrp-bin.log
-asclog=$workdir/profmetrp.log
+binlog=$workdir/profiles/profmetrp-bin.log
+asclog=$workdir/profiles/profmetrp.log
 profiler=$workdir/profmetrp.py
 
 
