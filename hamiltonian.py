@@ -197,7 +197,10 @@ class ham(object):
 	while(not(h[k]-k<i+1 and i+1<=h[k+1]-k-1)):
 	   k += 1
 	p = i + k+1
-      return self.g.pnt(p,form)
+      if(form=='1d'):
+	return p
+      else:
+	return self.g.pnt(p,form)
    def iinC(self,i):
       return 1 if(0<=i and i<self.__nc) else 0
    def iind(self,i):
@@ -214,7 +217,7 @@ class ham(object):
    def id2i(self,i):
       return self.p2i(self.id2p(i))
    def p2id(self,d):
-      d = self.g.pnt(d,'1d')
+      #d = self.g.pnt(d,'1d')
       i = list(self.g.danglingc('1d')).index(d)
       return i + self.__nc
    def i2id(self,i):

@@ -7,8 +7,11 @@ pdf:
 	rm -f hamiltonian-all.{aux,log}
 
 saveprofile:
-	mv $(profmflog).1 $(profmflog).2
-	mv $(profmflog) $(profmflog).1
+	if [ -e $(profmflog) ]
+	then
+	   mv $(profmflog).1 $(profmflog).2
+	   mv $(profmflog) $(profmflog).1
+	fi
 
 profile:
 	python -m cProfile -s time $(profmfpy) > $(profmflog)
