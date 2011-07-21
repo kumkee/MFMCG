@@ -84,32 +84,23 @@ class ham(object):
 	return 0.
 
    def Hu(self,spin,eden,ip):
-      if(not redand(map(self.iinC,ip))):
-	return 0
-      elif(self.diag(ip)):
 	i = ip[0]
 	tmp = 0
 	if(self.iinC(i)):
 	   tmp = eden.eden[flip(spin),i] #<n>n term
 	tmp -= reduce(dot,eden.eden)	 #<n><n> term
 	return self.U * tmp
-      else:
-	return 0
 
    def Hj(self,spin,eden,ip):
-      tmp = 0.
-      if( not(redand(map(self.iinC,ip)) )):
-	return tmp
-      else:
+	tmp = 0.
 	i = ip[0]
 	j = ip[1]
 	di = map(self.p2i, self.g.danglingc('1d'))	#dangling vertece
 	dd = xrange(self.__nc,self.__dim+self.__nd)	#dangling spins
-	if(self.diag(ip)):
-	   tmp += dot( map(eden.spin, di), map(eden.spin, dd) )  # <S><S> term
+	tmp += dot( map(eden.spin, di), map(eden.spin, dd) )  # <S><S> term
 	   #tmp -= sum(map(lambda x:x**2, eden.V)) /2.		 # V^2 term
-	   spin = 1 if spin else 0 		# make sure spin is 1 or 0
-	   if(i in di):
+	spin = 1 if spin else 0 		# make sure spin is 1 or 0
+	if(i in di):
 	      tmp -= (-1)**(spin+1)/2. * eden.spin(self.i2id(i)) # <S>Sd terms
 	   #if(i in dd):
 	   #   tmp -= (-1)**(spin+1) * eden.spin(self.id2i(i))/2. # <Sd>S terms
@@ -120,7 +111,7 @@ class ham(object):
 	   elif(i in dd):
 	      if(self.id2i(i)==j):
 		tmp -= eden.V[i-self.__nc]/2.'''
-        return self.J * tmp
+	return self.J * tmp
 
    def Hd(self,ip):
       if(redand(map(self.iind,ip)) and self.diag(ip) ):
@@ -129,17 +120,16 @@ class ham(object):
 	return 0.
 
    def Ho(self,ip):
-      if(redand(map(self.iinC,ip)) and self.diag(ip)):
 	return self.omg * self.osc
-      else:
-	return 0.
 
    def Hdia(self,spin,eden,ip):
-      return self.Hu(spin,eden,ip) + self.Ho(ip) + self.Hj(spin,eden,ip)
+      if( not(redand(map(self.iinC,ip)) )):
+	return 0.
+      else:
+	return self.Hu(spin,eden,ip) + self.Ho(ip) + self.Hj(spin,eden,ip)
 
    def Hall(self,spin,eden,ip):
-      return self.Ht(ip) + self.Hu(spin,eden,ip) + self.Hj(spin,eden,ip) \
-		+ self.Ho(ip)# + self.Hd(ip) 
+      return self.Ht(ip) + self.Hdia(spin,eden,ip)# + self.Hd(ip) 
 
    def matcsr(self,spin,eden):
       return self.matcoo(spin,eden).tocsr()
@@ -186,7 +176,7 @@ class ham(object):
 
 #---------------------------------------------------------------#
    def p2i(self,p):
-      p = self.g.pnt(p,'1d')
+      #p = self.g.pnt(p,'1d')
       h = self.g.holes('1d')
       if(p in h):
 	return None
