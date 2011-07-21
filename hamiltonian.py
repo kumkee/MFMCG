@@ -134,6 +134,9 @@ class ham(object):
       else:
 	return 0.
 
+   def Hdia(self,spin,eden,ip):
+      return self.Hu(spin,eden,ip) + self.Ho(ip) + self.Hj(spin,eden,ip)
+
    def Hall(self,spin,eden,ip):
       return self.Ht(ip) + self.Hu(spin,eden,ip) + self.Hj(spin,eden,ip) \
 		+ self.Ho(ip)# + self.Hd(ip) 
@@ -154,7 +157,7 @@ class ham(object):
       #---------Hdia-----------
       row[:self.dim] = xrange(self.dim)
       col = deepcopy(row)
-      dat[:self.dim] = [self.Hall(spin,eden,[i,i]) for i in xrange(self.dim)]
+      dat[:self.dim] = [self.Hdia(spin,eden,[i,i]) for i in xrange(self.dim)]
 
       #----------Ht------------
       col[self.dim:self.dim+ll], row[self.dim:self.dim+ll] = self.lstij.transpose()
