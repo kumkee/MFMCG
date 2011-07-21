@@ -1,14 +1,21 @@
 #!/bin/bash
 
-#PBS -N test9_pro_h
+#PBS -N test9_pro1_h
 #PBS -o ./log/$PBS_JOBNAME.log
 #PBS -e ./log/$PBS_JOBNAME.err
 #PBS -l nodes=1:ppn=2
 #PBS -l walltime=124:00:00
 #PBS -q batch
 
-jobcmd="`echo $PBS_JOBNAME | awk -F '_' '{print $1}'`".py
+workdir=$HOME/workspace/MFMCG/
+jobcmd=$workdir/"`echo $PBS_JOBNAME | awk -F '_' '{print $1}'`".py
+binlog=$workdir/profmetrp-bin.log
+asclog=$workdir/profmetrp.log
+profiler=$workdir/profmetrp.py
+
+
 date
 source $HOME/.bashrc
-python -m cProfile -o prometrp.log $HOME/workspace/MFMCG/$jobcmd
+python -m cProfile -o $binlog $jobcmd 
 date
+python $profiler $binlog > $asclog

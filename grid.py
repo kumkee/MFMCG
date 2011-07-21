@@ -17,22 +17,22 @@ class raw(object):
    def __init__(self,width,length):
       self.__w = int(width if width>0 else -width)
       self.__l = int(length if length>0 else -length)
-      #self._n = self.w * self.l
+      self.__n = self.w * self.l
    @property
    def w(self): return self.__w
    @property
    def l(self): return self.__l
    def size(self,dimension=0):
       if(dimension==0):
-	return self.w * self.l
+	return self.__n
       else:
 	return [self.w, self.l]
    def inrange(self,p):
       tp = 0
-      if(isinstance(p,(list,ndarray))):
-	if(isinstance(p[0],(int,float))):
-	   tp = 2 if (len(p)==2 and 0<=p[0] and p[0]<self.w and 0<=p[1] and p[1]<self.l) else 0
-      elif(isinstance(p, (int,float))):
+      try:#if(isinstance(p,(list,ndarray))):
+	#if(isinstance(p[0],(int,float))):
+	tp = 2 if (0<=p[0] and p[0]<self.w and 0<=p[1] and p[1]<self.l) else 0
+      except:#else:#elif(isinstance(p, (int,float))):
 	tp = 1 if ( 0<=p and p<self.size()) else 0 
       try:
 	1/tp
@@ -58,6 +58,8 @@ class honeycomb(raw):
       if len(holes)==0: self._holes = holes
       else:
 	self._holes = map(lambda x: self.pnt(x,'1d'), holes)
+      self.__nhole = len(self._holes)
+      self.__ndvert = len(self.dvertex(form='1d'))
    @property
    def loe(self): return self.__loe
    def sublat(self,p):
@@ -101,11 +103,11 @@ class honeycomb(raw):
 	hn = map(self,hn)
       return hn
    def nholes(self):
-      return len(self._holes)
+      return self.__nhole
    def ndvertex(self):
-      return len(self.dvertex(form='1d'))
+      return self.__ndvert
    def nvertex(self):
-      return self.size() - self.nholes()
+      return self.size() - self.__nhole
    def pnt(self,p,form='2d'):
       tp = self.inrange(p)
       if((form=='2d' and tp==1) or (form=='1d' and tp==2)):
