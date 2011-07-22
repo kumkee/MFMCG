@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#PBS -N mfmcg6x11z
+#PBS -N mfmcg10x21oh2RT
 #PBS -o ./log/$PBS_JOBNAME.log
 #PBS -e ./log/$PBS_JOBNAME.err
 #PBS -l nodes=1:ppn=2

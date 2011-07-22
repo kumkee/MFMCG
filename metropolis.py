@@ -1,10 +1,11 @@
 from mcmove import mcmove
 from numpy import zeros
+from mfiter import RT
 
 dc = 0.003
 
-def metropolis(h,cutoff=dc):
-   mc = mcmove(h,cutoff=cutoff)
+def metropolis(h,T=RT,cutoff=dc):
+   mc = mcmove(h,T=RT,cutoff=cutoff)
    Ssize = h.dim * 10
    while(True):
       count = 0
