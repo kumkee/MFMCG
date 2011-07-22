@@ -5,12 +5,13 @@ from hamiltonian import ham
 from metropolis import metropolis
 
 cutoff=0.0032
-h = ham(width=6,length=11,holes=[[2,5]])
+h = ham(width=6,length=11,boundary='z',holes=[])
 ncir = 500
 
 lcir = int(log10(ncir)) + 1
 dpath = 'data/'
 ddir = dpath + str(h.g) + '/'
+print 'data stored in', ddir
 try:
    mkdir(dpath)
 except:

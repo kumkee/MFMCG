@@ -1,10 +1,10 @@
 #!/bin/bash
 
-#PBS -N mfmcg6x11ho2
+#PBS -N mfmcg6x11z
 #PBS -o ./log/$PBS_JOBNAME.log
 #PBS -e ./log/$PBS_JOBNAME.err
 #PBS -l nodes=1:ppn=2
-#PBS -l walltime=24:00:00
+#PBS -l walltime=720:00:00
 #PBS -q batch
 
 workdir=$HOME/workspace/MFMCG/

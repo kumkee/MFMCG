@@ -78,9 +78,12 @@ class graphene(honeycomb):
       elif(p in self.dvertex(form='1d')):return 1 #dangling
       else:				 return 2
    def brokenedges(self,etype=2):
-      h = array(self._holes)
-      f = array(map(lambda p:self.ptype1(p)==etype or self.ptype1(p)==3, h))
-      return list(h[f])
+      if(self.nholes()==0):
+	return []
+      else:
+	h = array(self._holes)
+	f = array(map(lambda p:self.ptype1(p)==etype or self.ptype1(p)==3, h))
+	return list(h[f])
    def nbrokenedges(self,etype=2):
       return len(self.brokenedges(etype))
    def edgelink(self,p,q):
