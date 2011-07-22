@@ -4,6 +4,7 @@ from math import log10
 from hamiltonian import ham
 from metropolis import metropolis
 from mfiter import RT
+from datrendering import datname
 
 cutoff=0.0032
 h = ham(width=10,length=21,boundary='o',holes=[[5,8],[5,12]])
@@ -12,10 +13,7 @@ T = 2.
 
 lcir = int(log10(ncir)) + 1
 dpath = 'data/'
-ddir = dpath + str(h.g)# + '/'
-if(T!=1.0):
-   ddir += '_' + str(T) + 'RT'
-ddir += '/'
+ddir = dpath + datname(T,h.g) + '/'
 
 print 'data stored in', ddir
 try:
