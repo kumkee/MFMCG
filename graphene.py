@@ -25,6 +25,16 @@ class graphene(honeycomb):
 	self.__pbc = 0
       honeycomb.__init__(self,w,l,holes,ledge)
       self._dispm = zeros( (self.size(),2) )
+   def __str__(self):
+      s = "g_" + self.w.__str__() + 'x' + self.l.__str__()
+      if(self.__pbc==0): b = 'o'
+      elif(self.__pbc==1): b = 'a'
+      else: 		 b = 'z'
+      s += '_' + b + '_'
+      h = 'h'
+      for i in self._holes:
+	h += '~' + i.__str__()
+      return s+h
    @property
    def pbc(self):
       return self.__pbc
