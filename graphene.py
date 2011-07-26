@@ -25,6 +25,7 @@ class graphene(honeycomb):
 	self.__pbc = 0
       honeycomb.__init__(self,w,l,holes,ledge)
       self._dispm = zeros( (self.size(),2) )
+      self.__danglingc()
    def __str__(self):
       s = "g_" + self.w.__str__() + 'x' + self.l.__str__()
       if(self.__pbc==0): b = 'o'
@@ -48,9 +49,7 @@ class graphene(honeycomb):
    def ddistance(self,p,q):
       p = self.pnt(p,'2d')
       q = self.pnt(q,'2d')
-      try:
-	1/self.link(p,q)
-      except:
+      if(not self.link(p,q)):
 	raise ValueError("%s and %s are not linked" % (p,q))
       if(self.line(p,q)):
 	return norm(self.loc(p)-self.loc(q)) - self.loe
@@ -124,10 +123,15 @@ class graphene(honeycomb):
       pbn.extend(self.neighb(p,form='2d'))
       if(form=='2d'):	return pbn
       else:		return map(self,pbn)
+   def __danglingc(self):
+      self.__dc = self.dvertex('1d',relation='link',neighbtype='pbneighb')
    def danglingc(self,form='2d'):
-      return self.dvertex(form,relation='link',neighbtype='pbneighb')
+      if(form=='1d'):
+	return self.__dc
+      else:
+	return map(lambda p:self.pnt(p,form),self.__dc)
    def ndanglingc(self):
-      return len(self.danglingc(form='1d'))
+      return len(self.__dc)
    def lspblinks(self,form='2d'):
       def alinks():
 	be = self.brokenedges(1)

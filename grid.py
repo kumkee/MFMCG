@@ -34,10 +34,9 @@ class raw(object):
 	tp = 2 if (0<=p[0] and p[0]<self.w and 0<=p[1] and p[1]<self.l) else 0
       except:#else:#elif(isinstance(p, (int,float))):
 	tp = 1 if ( 0<=p and p<self.size()) else 0 
-      try:
-	1/tp
+      if(tp):
 	return tp
-      except:
+      else:
 	raise ValueError( erstr % eval(funcn) )
    def pntind(self,p):
       return self(p)
