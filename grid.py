@@ -55,7 +55,7 @@ class honeycomb(raw):
    def __init__(self,width=1,length=1,holes=[],ledge=1.0):
       raw.__init__(self,width,length)
       self.__loe = ledge
-      self.__sublat()
+      self.__storep()
       if len(holes)==0: self._holes = holes
       else:
 	self._holes = map(lambda x: self.pnt(x,'1d'), holes)
@@ -63,13 +63,20 @@ class honeycomb(raw):
       self.__ndvert = len(self.dvertex(form='1d'))
    @property
    def loe(self): return self.__loe
-   def __sublat(self):
+   def __storep(self):
       self.__sl = bitarray(self.size())
       k = 0
+      self.__one2two = []
+      self.__two2one = []
       for i in xrange(self.w):
+	row = []
 	for j in xrange(self.l):
 	   self.__sl[k] = (i+j)%2
+	   self.__one2two.append([i,j])     
+	   row.append(k)
 	   k += 1
+	self.__two2one.append(row)
+      self.__two2one = array(self.__two2one)
    def sublat(self,p):
       return self.__sl[self.pnt(p,'1d')]
    def line(self,p,q):
@@ -116,15 +123,29 @@ class honeycomb(raw):
    def nvertex(self):
       return self.size() - self.__nhole
    def pnt(self,p,form='2d'):
-      tp = self.inrange(p)
-      if((form=='2d' and tp==1) or (form=='1d' and tp==2)):
-	return self(p)
-      elif((form=='2d' and tp==2) or (form=='1d' and tp==1)):
-      	return p
+      #tp = self.inrange(p)
+      if(form=='2d'):
+	try:
+	   r = self.__one2two[p]
+	except:
+	   try:
+	      self.__two2one[tuple(p)]
+	   except:
+	      raise ValueError( erstr % eval(funcn) )
+	   r = p
+	return r
       elif(form=='xy'):
 	return self.coord(p)
-      else:
-	return p
+      else:#if(form=='1d'):
+	try:
+	   r = self.__two2one[tuple(p)]
+	except:
+	   try:
+	      self.__one2two[p]
+	   except:
+	      raise ValueError( erstr % eval(funcn) )
+           r = p
+	return r
    def linkedholepairs(self,relatn):
       hs = deepcopy(self._holes)
       lhp = []		#lined-hole pairs
