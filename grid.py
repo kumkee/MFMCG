@@ -1,6 +1,7 @@
 import inspect
 from copy import deepcopy
 from numpy import *
+from bitarray import bitarray
 
 def whoami():
     return inspect.stack()[1][3]
@@ -54,6 +55,7 @@ class honeycomb(raw):
    def __init__(self,width=1,length=1,holes=[],ledge=1.0):
       raw.__init__(self,width,length)
       self.__loe = ledge
+      self.__sublat()
       if len(holes)==0: self._holes = holes
       else:
 	self._holes = map(lambda x: self.pnt(x,'1d'), holes)
@@ -61,9 +63,15 @@ class honeycomb(raw):
       self.__ndvert = len(self.dvertex(form='1d'))
    @property
    def loe(self): return self.__loe
+   def __sublat(self):
+      self.__sl = bitarray(self.size())
+      k = 0
+      for i in xrange(self.w):
+	for j in xrange(self.l):
+	   self.__sl[k] = (i+j)%2
+	   k += 1
    def sublat(self,p):
-      p = self.pnt(p,'2d')
-      return sum(p)%2
+      return self.__sl[self.pnt(p,'1d')]
    def line(self,p,q):
       p,q = map(lambda x:self.pnt(x,'2d'),(p,q))
       if(p[0]==q[0]):
