@@ -87,6 +87,7 @@ class honeycomb(raw):
 	self.__sites[i] = False
    def __storep(self):
       self.__sl = bitarray(self.size())
+      self.__coord = zeros((self.size(),2),dtype=float)
       k = 0
       ii = 0
       self.__p2i = []
@@ -94,12 +95,15 @@ class honeycomb(raw):
       for i in xrange(self.w):
 	for j in xrange(self.l):
 	   self.__sl[k] = (i+j)%2
+	   x = j * hsqrt3
+	   y = -i/2.0 * 3.0 + self.__sl[k]*0.5
 	   if(self.__sites[k]):
 	      self.__p2i.append(ii)
 	      self.__i2p.append(k)
 	      ii += 1
 	   else:
 	      self.__p2i.append(None)
+	   self.__coord[k] = [ x*self.loe, y*self.loe ]
 	   k += 1
    def sublat(self,p):
       return self.__sl[self.pnt(p,'1d')]
@@ -204,11 +208,8 @@ class honeycomb(raw):
 	      k += 1
       return lines
    def coord(self,p):
-      p = self.pnt(p,'2d')
-      s = self.sublat(p)
-      x = p[1] * hsqrt3
-      y = -p[0]/2.0 * 3.0 + s*0.5
-      return array([ x*self.loe, y*self.loe ])
+      p = self.pnt(p,'1d')
+      return self.__coord[p]
 
 class square(raw):
    def __init__(self,width):
