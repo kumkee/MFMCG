@@ -55,28 +55,52 @@ class honeycomb(raw):
    def __init__(self,width=1,length=1,holes=[],ledge=1.0):
       raw.__init__(self,width,length)
       self.__loe = ledge
-      self.__storep()
+      self.__onetwoinit()
       if len(holes)==0: self._holes = holes
       else:
 	self._holes = map(lambda x: self.pnt(x,'1d'), holes)
+      self.__buildsites()
+      self.__storep()
       self.__nhole = len(self._holes)
       self.__ndvert = len(self.dvertex(form='1d'))
    @property
    def loe(self): return self.__loe
-   def __storep(self):
-      self.__sl = bitarray(self.size())
+   @property
+   def p2i(self): return self.__p2i
+   @property
+   def i2p(self): return self.__i2p
+   def __onetwoinit(self):
       k = 0
       self.__one2two = []
       self.__two2one = []
       for i in xrange(self.w):
 	row = []
 	for j in xrange(self.l):
-	   self.__sl[k] = (i+j)%2
 	   self.__one2two.append([i,j])     
 	   row.append(k)
 	   k += 1
 	self.__two2one.append(row)
       self.__two2one = array(self.__two2one)
+   def __buildsites(self):
+      self.__sites = bitarray([1] * self.size())
+      for i in self._holes:
+	self.__sites[i] = False
+   def __storep(self):
+      self.__sl = bitarray(self.size())
+      k = 0
+      ii = 0
+      self.__p2i = []
+      self.__i2p = []
+      for i in xrange(self.w):
+	for j in xrange(self.l):
+	   self.__sl[k] = (i+j)%2
+	   if(self.__sites[k]):
+	      self.__p2i.append(ii)
+	      self.__i2p.append(k)
+	      ii += 1
+	   else:
+	      self.__p2i.append(None)
+	   k += 1
    def sublat(self,p):
       return self.__sl[self.pnt(p,'1d')]
    def line(self,p,q):

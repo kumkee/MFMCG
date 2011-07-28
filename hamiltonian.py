@@ -177,13 +177,18 @@ class ham(object):
 #---------------------------------------------------------------#
    def p2i(self,p):
       #p = self.g.pnt(p,'1d')
-      h = self.g.holes('1d')
-      if(p in h):
-	return None
-      else:
-	return p - len(filter(lambda x:x<p,h))
+      return self.g.p2i[p]
+      #h = self.g.holes('1d')
+      #if(p in h):
+#	return None
+#      else:
+#	return p - len(filter(lambda x:x<p,h))
    def i2p(self,i,form='1d'):
-      
+      if(form=='1d'):
+	return self.g.i2p[i]
+      else:
+	return self.g.pnt(self.g.i2p[i],form)
+      '''
       h = self.g.holes('1d')
       lenh = self.g.nholes()
       if(self.g.holes('1d')==[]):
@@ -201,6 +206,7 @@ class ham(object):
 	return p
       else:
 	return self.g.pnt(p,form)
+      '''
    def iinC(self,i):
       return 1 if(0<=i and i<self.__nc) else 0
    def iind(self,i):
