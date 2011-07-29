@@ -13,7 +13,7 @@ saveprofile:
 	mv $(profmflog) $(profmflog).1
 
 profile:
-	python -m cProfile -s time $(profmfpy) > $(profmflog)
+	python -m cProfile -s cum $(profmfpy) > $(profmflog)
 
 
 saveprofilemtp:

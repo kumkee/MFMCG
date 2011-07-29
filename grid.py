@@ -61,6 +61,7 @@ class honeycomb(raw):
 	self._holes = map(lambda x: self.pnt(x,'1d'), holes)
       self.__buildsites()
       self.__storep()
+      self.__storelines()
       self.__nhole = len(self._holes)
       self.__ndvert = len(self.dvertex(form='1d'))
    @property
@@ -69,6 +70,12 @@ class honeycomb(raw):
    def p2i(self): return self.__p2i
    @property
    def i2p(self): return self.__i2p
+   def __storelines(self):
+      self.__lines = [bitarray(n+1) for n in xrange(self.size())]
+      for j in xrange(self.size()):
+	for i in xrange(j+1):
+	   self.__lines[j][i] = self.__lineinit(j,i)
+	   
    def __onetwoinit(self):
       k = 0
       self.__one2two = []
@@ -108,7 +115,12 @@ class honeycomb(raw):
    def sublat(self,p):
       return self.__sl[self.pnt(p,'1d')]
    def line(self,p,q):
-      p,q = map(lambda x:self.pnt(x,'2d'),(p,q))
+      p,q = map(lambda x:self.pnt(x,'1d'),(p,q))
+      if(q>p):
+	p, q = q, p
+      return self.__lines[p][q]
+   def __lineinit(self,p,q):
+      p,q = map(self.pnt,(p,q))
       if(p[0]==q[0]):
 	return 1 if(myabs(p[1]-q[1])==1) else 0
       elif(p[1]==q[1]):
