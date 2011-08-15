@@ -4,15 +4,17 @@ from hamiltonian import *
 from scipy.linalg import *
 from scipy.optimize import brentq
 from multiprocessing import Pool
+#from IPython.parallel import Client
 import time
 
 #def tfunc(f,q,x):
 #   q.put(f(x))
-#tc = client.TaskClient()
+#tc = Client()
+#p = client.TaskClient()
+p = Pool()
 
 RT = 1.034e-2
 
-p = Pool()
 
 #@tc.parallel()
 def fermi(energy,chempot,temp=RT):
