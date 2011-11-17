@@ -7,9 +7,9 @@ from mfiter import RT
 from datrendering import datname
 
 cutoff=0.0032
-h = ham(width=10,length=21,boundary='o',holes=[[5,8],[5,12]])
+h = ham(width=4,length=5,boundary='o',holes=[11])
 ncir = 110
-T = 2.
+T = 100.0
 
 lcir = int(log10(ncir)) + 1
 dpath = 'data/'
